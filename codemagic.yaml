@@ -13,12 +13,21 @@ workflows:
       - npm ci
       - npm run build
       - npx cap add ios
-      - ls -la
       - '[ -d ios ] || { echo "ERROR: ios/ wurde nicht erstellt"; exit 1; }'
       - '[ -d ios/App ] || { echo "ERROR: ios/App fehlt"; exit 1; }'
       - npx cap sync ios
+
+      # ⬇️ Code Signing: holt/erzeugt Profile & Zertifikate aus deiner ASC-Integration "asc"
+      - keychain initialize
+      - app-store-connect fetch-signing-files "$BUNDLE_ID" --type IOS_APP_STORE --create
+      - keychain add-certificates
+      - xcode-project use-profiles
+
+      # CocoaPods
       - cd ios/App && pod repo update
       - cd ios/App && pod install --repo-update
+
+      # Export-Options für TestFlight
       - |
         cat > /Users/builder/export_options.plist <<'PLIST'
         <?xml version="1.0" encoding="UTF-8"?>
@@ -29,7 +38,10 @@ workflows:
           </dict>
         </plist>
         PLIST
-      - xcode-project build-ipa --workspace "ios/App/App.xcworkspace" --scheme "App" --export-options-plist /Users/builder/export_options.plist
+
+      # Archiv + Export (jetzt mit eingebundenen Profiles)
+      - xcodebuild -workspace "ios/App/App.xcworkspace" -scheme "App" -configuration Release -archivePath build/ios/xcarchive/App.xcarchive archive COMPILER_INDEX_STORE_ENABLE=NO
+      - xcodebuild -exportArchive -archivePath build/ios/xcarchive/App.xcarchive -exportOptionsPlist /Users/builder/export_options.plist -exportPath build/ios/ipa
     artifacts:
       - build/ios/ipa/*.ipa
     publishing:
