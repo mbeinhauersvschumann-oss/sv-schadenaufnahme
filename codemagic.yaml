@@ -4,11 +4,13 @@ workflows:
     integrations:
       app_store_connect: asc
     environment:
-      vars:
-        APP_ID: "de.svschumann.schadenaufnahme"
+      groups:
+        - Schumann        # <— DEINE Gruppe aus dem UI
       xcode: latest
       node: 20
     scripts:
+      - '[ -n "$BUNDLE_ID" ] || { echo "ERROR: BUNDLE_ID ist leer"; exit 1; }'
+      - '[ -n "$TEAM_ID" ] || { echo "ERROR: TEAM_ID ist leer"; exit 1; }'
       - 'echo "Node: $(node -v)  NPM: $(npm -v)"'
       - npm ci
       - npm run build
