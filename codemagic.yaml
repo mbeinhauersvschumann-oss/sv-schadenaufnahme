@@ -1,3 +1,6 @@
+integrations:
+  app_store_connect: Sachverständigenbüro Schumann GmbH
+
 workflows:
   ios-internal:
     name: iOS Internal
