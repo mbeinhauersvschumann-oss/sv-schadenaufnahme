@@ -16,7 +16,7 @@ workflows:
       - ls -la
       - '[ -d ios ] || { echo "ERROR: ios/ wurde nicht erstellt"; exit 1; }'
       - '[ -d ios/App ] || { echo "ERROR: ios/App fehlt"; exit 1; }'
-      - npx cap sync ios --verbose
+      - npx cap sync ios
       - cd ios/App
       - pod repo update
       - pod install --repo-update
