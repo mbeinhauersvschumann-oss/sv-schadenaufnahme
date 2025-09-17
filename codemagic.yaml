@@ -5,7 +5,7 @@ workflows:
       app_store_connect: asc
     environment:
       groups:
-        - Schumann        # <— DEINE Gruppe aus dem UI
+        - Schumann
       xcode: latest
       node: 20
     scripts:
@@ -19,17 +19,17 @@ workflows:
       - '[ -d ios/App ] || { echo "ERROR: ios/App fehlt"; exit 1; }'
       - npx cap sync ios
 
-      # --- Pods (wie zuvor) ---
-      - cd ios/App && pod repo update
-      - cd ios/App && pod install --repo-update
-
-      # --- NEU: Code Signing vollautomatisch (ohne UI) ---
+      # --- Code Signing (nutzt deine asc-Integration und Zertifikate mit Private Key) ---
       - keychain initialize
       - app-store-connect fetch-signing-files "$BUNDLE_ID" --type IOS_APP_STORE --create
       - keychain add-certificates
       - xcode-project use-profiles
 
-      # --- Export-Options (wie zuvor) ---
+      # --- CocoaPods ---
+      - cd ios/App && pod repo update
+      - cd ios/App && pod install --repo-update
+
+      # --- Export-Options für TestFlight ---
       - |
         cat > /Users/builder/export_options.plist <<'PLIST'
         <?xml version="1.0" encoding="UTF-8"?>
@@ -41,8 +41,13 @@ workflows:
         </plist>
         PLIST
 
-      # --- IPA bauen (wie zuvor; Manual ist jetzt ok, weil Profile eingebunden sind) ---
-      - xcode-project build-ipa --workspace "ios/App/App.xcworkspace" --scheme "App" --export-options-plist /Users/builder/export_options.plist
+      # --- IPA bauen ---
+      - xcode-project build-ipa \
+          --workspace "ios/App/App.xcworkspace" \
+          --scheme "App" \
+          --export-options-plist /Users/builder/export_options.plist \
+          --archivePath build/ios/xcarchive/App.xcarchive \
+          --exportPath build/ios/ipa
     artifacts:
       - build/ios/ipa/*.ipa
     publishing:
