@@ -17,10 +17,8 @@ workflows:
       - '[ -d ios ] || { echo "ERROR: ios/ wurde nicht erstellt"; exit 1; }'
       - '[ -d ios/App ] || { echo "ERROR: ios/App fehlt"; exit 1; }'
       - npx cap sync ios
-      - cd ios/App
-      - pod repo update
-      - pod install --repo-update
-      - cd ../..
+      - cd ios/App && pod repo update
+      - cd ios/App && pod install --repo-update
       - xcode-project build-ipa --workspace "ios/App/App.xcworkspace" --scheme "App" --archive-flags="-destination '\''generic/platform=iOS'\''"
     artifacts:
       - build/ios/ipa/*.ipa
