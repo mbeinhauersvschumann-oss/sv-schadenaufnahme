@@ -1,0 +1,19 @@
+workflows:
+  ios-internal:
+    name: iOS Internal
+    environment:
+      vars:
+        APP_ID: "de.svschumann.schadenaufnahme"
+      xcode: latest
+      node: 20
+    scripts:
+      - npm ci
+      - npm run build
+      - npx cap sync ios
+      - xcode-project build-ipa --workspace "ios/App/App.xcworkspace" --scheme "App" --archive-flags="-destination 'generic/platform=iOS'"
+    artifacts:
+      - build/ios/ipa/*.ipa
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
