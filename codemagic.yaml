@@ -1,5 +1,5 @@
 integrations:
-  app_store_connect: Sachverständigenbüro Schumann GmbH
+  app_store_connect: asc
 
 workflows:
   ios-internal:
