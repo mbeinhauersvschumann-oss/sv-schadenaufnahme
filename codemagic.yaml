@@ -9,7 +9,11 @@ workflows:
     scripts:
       - npm ci
       - npm run build
+      - npx cap add ios || true
       - npx cap sync ios
+      - cd ios/App
+      - pod install --repo-update
+      - cd ../..
       - xcode-project build-ipa --workspace "ios/App/App.xcworkspace" --scheme "App" --archive-flags="-destination 'generic/platform=iOS'"
     artifacts:
       - build/ios/ipa/*.ipa
