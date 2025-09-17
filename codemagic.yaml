@@ -19,7 +19,17 @@ workflows:
       - npx cap sync ios
       - cd ios/App && pod repo update
       - cd ios/App && pod install --repo-update
-      - xcode-project build-ipa --workspace "ios/App/App.xcworkspace" --scheme "App" --archive-flags="-destination '\''generic/platform=iOS'\''"
+      - |
+        cat > /Users/builder/export_options.plist <<'PLIST'
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+        <plist version="1.0">
+          <dict>
+            <key>method</key><string>app-store</string>
+          </dict>
+        </plist>
+        PLIST
+      - xcode-project build-ipa --workspace "ios/App/App.xcworkspace" --scheme "App" --export-options-plist /Users/builder/export_options.plist
     artifacts:
       - build/ios/ipa/*.ipa
     publishing:
