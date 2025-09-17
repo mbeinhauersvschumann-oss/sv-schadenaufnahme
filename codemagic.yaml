@@ -9,13 +9,27 @@ workflows:
       xcode: latest
       node: 20
     scripts:
+      - node -v && npm -v
+      - npx cap --version || echo "Capacitor CLI not found yet (will be installed by npm ci)"
       - npm ci
       - npm run build
-      - npx cap add ios || true
-      - npx cap sync ios
+
+      # iOS-Plattform sauber hinzufügen (ohne || true, damit Fehlermeldungen den Build stoppen)
+      - npx cap add ios
+
+      # Verifizieren, dass der Ordner wirklich existiert
+      - ls -la
+      - test -d ios || (echo "ERROR: ios/ wurde nicht erstellt" && exit 1)
+      - test -d ios/App || (echo "ERROR: ios/App fehlt" && exit 1)
+
+      # Sync & Pods
+      - npx cap sync ios --verbose
       - cd ios/App
+      - pod repo update
       - pod install --repo-update
       - cd ../..
+
+      # IPA bauen
       - xcode-project build-ipa --workspace "ios/App/App.xcworkspace" --scheme "App" --archive-flags="-destination 'generic/platform=iOS'"
     artifacts:
       - build/ios/ipa/*.ipa
