@@ -1,9 +1,8 @@
-integrations:
-  app_store_connect: asc
-
 workflows:
   ios-internal:
     name: iOS Internal
+    integrations:
+      app_store_connect: asc   # <- Name genau wie in deinem Screenshot
     environment:
       vars:
         APP_ID: "de.svschumann.schadenaufnahme"
