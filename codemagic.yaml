@@ -2,35 +2,26 @@ workflows:
   ios-internal:
     name: iOS Internal
     integrations:
-      app_store_connect: asc   # <- Name genau wie in deinem Screenshot
+      app_store_connect: asc
     environment:
       vars:
         APP_ID: "de.svschumann.schadenaufnahme"
       xcode: latest
       node: 20
     scripts:
-      - node -v && npm -v
-      - npx cap --version || echo "Capacitor CLI not found yet (will be installed by npm ci)"
+      - 'echo "Node: $(node -v)  NPM: $(npm -v)"'
       - npm ci
       - npm run build
-
-      # iOS-Plattform sauber hinzufügen (ohne || true, damit Fehlermeldungen den Build stoppen)
       - npx cap add ios
-
-      # Verifizieren, dass der Ordner wirklich existiert
       - ls -la
-      - test -d ios || (echo "ERROR: ios/ wurde nicht erstellt" && exit 1)
-      - test -d ios/App || (echo "ERROR: ios/App fehlt" && exit 1)
-
-      # Sync & Pods
+      - '[ -d ios ] || { echo "ERROR: ios/ wurde nicht erstellt"; exit 1; }'
+      - '[ -d ios/App ] || { echo "ERROR: ios/App fehlt"; exit 1; }'
       - npx cap sync ios --verbose
       - cd ios/App
       - pod repo update
       - pod install --repo-update
       - cd ../..
-
-      # IPA bauen
-      - xcode-project build-ipa --workspace "ios/App/App.xcworkspace" --scheme "App" --archive-flags="-destination 'generic/platform=iOS'"
+      - xcode-project build-ipa --workspace "ios/App/App.xcworkspace" --scheme "App" --archive-flags="-destination '\''generic/platform=iOS'\''"
     artifacts:
       - build/ios/ipa/*.ipa
     publishing:
