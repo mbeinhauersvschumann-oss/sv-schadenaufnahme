@@ -37,20 +37,20 @@ workflows:
     artifacts:
       - build/ios/ipa/*.ipa
     publishing:
-  app_store_connect:
-    auth: integration
-    submit_to_testflight: true
-    export_compliance:
-      uses_encryption: false
-    beta_build_localizations:
-      - locale: "de-DE"
-        whats_new: "Verbesserungen und Fehlerbehebungen."
-    beta_app_review_info:
-      contact_first_name: "Michael"
-      contact_last_name: "Beinhauer"
-      contact_email: "m.beinhauer@sv-schumann.de"
-      contact_phone: "+49 15165873317"
-      demo_account_name: ""
-      demo_account_password: ""
-      notes: "Interner Test über TestFlight."
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+        export_compliance:
+          uses_encryption: false
+        beta_build_localizations:
+          - locale: "de-DE"
+            whats_new: "Verbesserungen und Fehlerbehebungen."
+        beta_app_review_info:
+          contact_first_name: "Michael"
+          contact_last_name: "Beinhauer"
+          contact_email: "m.beinhauer@sv-schumann.de"
+          contact_phone: "+49 15165873317"
+          demo_account_name: ""
+          demo_account_password: ""
+          notes: "Interner Test über TestFlight."
 
