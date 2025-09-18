@@ -9,45 +9,40 @@ workflows:
       xcode: latest
       node: 20
     scripts:
-      - '[ -n "$BUNDLE_ID" ] || { echo "ERROR: BUNDLE_ID ist leer"; exit 1; }'
-      - '[ -n "$TEAM_ID" ] || { echo "ERROR: TEAM_ID ist leer"; exit 1; }'
+      # Sanity
+      - 'echo "BUNDLE_ID=$BUNDLE_ID  TEAM_ID=$TEAM_ID"'
+      - '[[ -n "$BUNDLE_ID" && -n "$TEAM_ID" ]] || { echo "Env-Variablen fehlen"; exit 1; }'
       - 'echo "Node: $(node -v)  NPM: $(npm -v)"'
+
+      # Build Web + iOS-Gerüst
       - npm ci
       - npm run build
-      - npx cap add ios
-      - '[ -d ios ] || { echo "ERROR: ios/ wurde nicht erstellt"; exit 1; }'
-      - '[ -d ios/App ] || { echo "ERROR: ios/App fehlt"; exit 1; }'
+      - npx cap add ios || true
       - npx cap sync ios
 
-      # --- Code Signing (nutzt deine asc-Integration und Zertifikate mit Private Key) ---
-      - keychain initialize
-      - app-store-connect fetch-signing-files "$BUNDLE_ID" --type IOS_APP_STORE --create
-      - keychain add-certificates
-      - xcode-project use-profiles
-
-      # --- CocoaPods ---
+      # Pods
       - cd ios/App && pod repo update
       - cd ios/App && pod install --repo-update
+      - cd ../../
 
-      # --- Export-Options für TestFlight ---
+      # 🔐 Code signing — KEINE fetch-signing-files!
+      - keychain initialize                          # lädt Codemagic-Zertifikate in die Keychain
+      - app-store-connect fetch-profiles --type IOS_APP_STORE --bundle-id "$BUNDLE_ID"
+      - xcode-project use-profiles                   # verdrahtet Profile -> Projekt
+
+      # Export-Options für App Store / TestFlight
       - |
         cat > /Users/builder/export_options.plist <<'PLIST'
         <?xml version="1.0" encoding="UTF-8"?>
         <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-        <plist version="1.0">
-          <dict>
-            <key>method</key><string>app-store</string>
-          </dict>
-        </plist>
+        <plist version="1.0"><dict>
+          <key>method</key><string>app-store</string>
+        </dict></plist>
         PLIST
 
-      # --- IPA bauen ---
-      - xcode-project build-ipa \
-          --workspace "ios/App/App.xcworkspace" \
-          --scheme "App" \
-          --export-options-plist /Users/builder/export_options.plist \
-          --archivePath build/ios/xcarchive/App.xcarchive \
-          --exportPath build/ios/ipa
+      # Archiv & Export
+      - xcode-project build-ipa --workspace "ios/App/App.xcworkspace" --scheme "App" --export-options-plist /Users/builder/export_options.plist
+
     artifacts:
       - build/ios/ipa/*.ipa
     publishing:
