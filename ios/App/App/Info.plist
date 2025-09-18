@@ -45,11 +45,13 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>NSCameraUsageDescription</key>
 	<string>Die Kamera wird benötigt, um Fotos von Schäden aufzunehmen.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Die Fotobibliothek wird benötigt, um bestehende Bilder zu Schäden hinzuzufügen.</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>Das Mikrofon wird benötigt, falls Sprachaufnahmen zum Schaden hinzugefügt werden.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+  	<string>Zum Speichern von aufgenommenen Fotos in Ihrer Fotomediathek.</string>
 </dict>
 </plist>
