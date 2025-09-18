@@ -1,42 +1,33 @@
 workflows:
   ios-internal:
     name: iOS Internal
+
+    # <-- DAS verlangt Codemagic, wenn du unten auth: integration nutzt
     integrations:
-      app_store_connect: asc
+      app_store_connect: asc   # "asc" = Name deiner Team-Integration
+
     environment:
       groups:
-        - Schumann
+        - Schumann             # deine Variablen-Gruppe (BUNDLE_ID/TEAM_ID, falls genutzt)
       ios_signing:
         distribution_type: app_store
         bundle_identifier: de.svschumann.schadenaufnahme
       xcode: latest
       node: 20
+
     scripts:
-      - rm -rf ios
       - npm ci
       - npm run build
-      - npx cap add ios
+      - npx cap add ios || true
       - npx cap sync ios
-      - '[ -f ios/App/Podfile ] || { echo "Podfile fehlt in ios/App"; ls -la ios/App; exit 1; }'
-      - cd ios/App && pod install --repo-update
-      - cd ../..
-      - |
-        PLIST="ios/App/App/Info.plist"
-        # Foto-Bibliothek
-        /usr/libexec/PlistBuddy -c "Add :NSPhotoLibraryUsageDescription string 'Die App benötigt Zugriff auf die Fotomediathek, um Schadensbilder auszuwählen und hochzuladen.'" "$PLIST" || \
-        /usr/libexec/PlistBuddy -c "Set :NSPhotoLibraryUsageDescription 'Die App benötigt Zugriff auf die Fotomediathek, um Schadensbilder auszuwählen und hochzuladen.'" "$PLIST"
-        # Kamera (falls ihr mit der Kamera schießt)
-        /usr/libexec/PlistBuddy -c "Add :NSCameraUsageDescription string 'Die App benötigt Zugriff auf die Kamera, um Schäden zu fotografieren.'" "$PLIST" || \
-        /usr/libexec/PlistBuddy -c "Set :NSCameraUsageDescription 'Die App benötigt Zugriff auf die Kamera, um Schäden zu fotografieren.'" "$PLIST"
-        # Mikrofon (nur wenn Videos/Audio, sonst weglassen)
-        /usr/libexec/PlistBuddy -c "Add :NSMicrophoneUsageDescription string 'Mikrofonzugriff für Videoaufnahmen (optional).'" "$PLIST" || \
-        /usr/libexec/PlistBuddy -c "Set :NSMicrophoneUsageDescription 'Mikrofonzugriff für Videoaufnahmen (optional).'" "$PLIST"
-        # Buildnummer immer eindeutig
-        BN="${BUILD_NUMBER:-${CM_BUILD_ID:-$(date +%Y%m%d%H%M)}}"
-        /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $BN" "$PLIST"
+      - cd ios/App && pod install --repo-update && cd ../..
+      - xcode-project use-profiles
+      - xcode-project build-ipa --workspace "ios/App/App.xcworkspace" --scheme "App"
+
     artifacts:
       - build/ios/ipa/*.ipa
+
     publishing:
       app_store_connect:
-        auth: integration
+        auth: integration       # -> erfordert den Block integrations: ... (s.o.)
         submit_to_testflight: true
