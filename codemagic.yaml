@@ -21,7 +21,7 @@ workflows:
 
       # 2) Capacitor iOS sync (kein add, kein rm -rf)
       - npx cap sync ios
-
+      
       # 3) Guard: Podfile vorhanden
       - '[ -f ios/App/Podfile ] || { echo "Podfile fehlt in ios/App"; ls -la ios/App; exit 1; }'
 
@@ -31,17 +31,17 @@ workflows:
       # 5) Info.plist-Keys + Buildnummer setzen
       - |
         PLIST="ios/App/App/Info.plist"
-        # Fotobibliothek (LESEN)
         /usr/libexec/PlistBuddy -c "Add :NSPhotoLibraryUsageDescription string 'Zugriff auf Fotomediathek zum Auswählen von Schadensbildern.'" "$PLIST" || \
         /usr/libexec/PlistBuddy -c "Set :NSPhotoLibraryUsageDescription 'Zugriff auf Fotomediathek zum Auswählen von Schadensbildern.' " "$PLIST"
-        # Fotobibliothek (SCHREIBEN) – nur falls ihr dorthin speichert
         /usr/libexec/PlistBuddy -c "Add :NSPhotoLibraryAddUsageDescription string 'Bilder in die Fotomediathek speichern (optional).'" "$PLIST" || \
         /usr/libexec/PlistBuddy -c "Set :NSPhotoLibraryAddUsageDescription 'Bilder in die Fotomediathek speichern (optional).'" "$PLIST"
-        # Kamera
         /usr/libexec/PlistBuddy -c "Add :NSCameraUsageDescription string 'Kamerazugriff für Schadenfotos.'" "$PLIST" || \
         /usr/libexec/PlistBuddy -c "Set :NSCameraUsageDescription 'Kamerazugriff für Schadenfotos.'" "$PLIST"
+        /usr/libexec/PlistBuddy -c "Delete :NSAppTransportSecurity" "$PLIST" 2>/dev/null || true
+        /usr/libexec/PlistBuddy -c "Add :NSAppTransportSecurity dict" "$PLIST"
+        /usr/libexec/PlistBuddy -c "Add :NSAppTransportSecurity:NSAllowsArbitraryLoads bool false" "$PLIST"
+        /usr/libexec/PlistBuddy -c "Add :NSAppTransportSecurity:NSAllowsArbitraryLoadsInWebContent bool true" "$PLIST"
 
-        # Eindeutige Buildnummer
         BN="${BUILD_NUMBER:-${CM_BUILD_ID:-$(date +%Y%m%d%H%M)}}"
         /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $BN" "$PLIST"
 
