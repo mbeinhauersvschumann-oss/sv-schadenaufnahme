@@ -21,7 +21,6 @@ workflows:
       - npm run build
 
       # 2) iOS frisch erzeugen und synchronisieren
-      - npx cap add ios
       - npx cap sync ios
 
       # 3) Guard: Podfile muss existieren
