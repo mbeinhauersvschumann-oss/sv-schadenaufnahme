@@ -12,17 +12,27 @@ workflows:
       xcode: latest
       node: 20
     scripts:
+      - rm -rf ios
       - npm ci
       - npm run build
-      - npx cap add ios || true
+      - npx cap add ios
       - npx cap sync ios
+      - '[ -f ios/App/Podfile ] || { echo "Podfile fehlt in ios/App"; ls -la ios/App; exit 1; }'
       - cd ios/App && pod install --repo-update && cd ../..
-      - xcode-project use-profiles
       - |
         PLIST="ios/App/App/Info.plist"
+        # Foto-Bibliothek
+        /usr/libexec/PlistBuddy -c "Add :NSPhotoLibraryUsageDescription string 'Die App benötigt Zugriff auf die Fotomediathek, um Schadensbilder auszuwählen und hochzuladen.'" "$PLIST" || \
+        /usr/libexec/PlistBuddy -c "Set :NSPhotoLibraryUsageDescription 'Die App benötigt Zugriff auf die Fotomediathek, um Schadensbilder auszuwählen und hochzuladen.'" "$PLIST"
+        # Kamera (falls ihr mit der Kamera schießt)
+        /usr/libexec/PlistBuddy -c "Add :NSCameraUsageDescription string 'Die App benötigt Zugriff auf die Kamera, um Schäden zu fotografieren.'" "$PLIST" || \
+        /usr/libexec/PlistBuddy -c "Set :NSCameraUsageDescription 'Die App benötigt Zugriff auf die Kamera, um Schäden zu fotografieren.'" "$PLIST"
+        # Mikrofon (nur wenn Videos/Audio, sonst weglassen)
+        /usr/libexec/PlistBuddy -c "Add :NSMicrophoneUsageDescription string 'Mikrofonzugriff für Videoaufnahmen (optional).'" "$PLIST" || \
+        /usr/libexec/PlistBuddy -c "Set :NSMicrophoneUsageDescription 'Mikrofonzugriff für Videoaufnahmen (optional).'" "$PLIST"
         BN="${BUILD_NUMBER:-${CM_BUILD_ID:-$(date +%Y%m%d%H%M)}}"
-        echo "Set CFBundleVersion -> $BN"
         /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $BN" "$PLIST"
+      - xcode-project use-profiles
       - xcode-project build-ipa --workspace "ios/App/App.xcworkspace" --scheme "App"
     artifacts:
       - build/ios/ipa/*.ipa
