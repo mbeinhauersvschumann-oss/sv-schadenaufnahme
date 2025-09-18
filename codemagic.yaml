@@ -18,6 +18,11 @@ workflows:
       - npx cap sync ios
       - cd ios/App && pod install --repo-update && cd ../..
       - xcode-project use-profiles
+      - |
+        PLIST="ios/App/App/Info.plist"
+        BN="${BUILD_NUMBER:-${CM_BUILD_ID:-$(date +%Y%m%d%H%M)}}"
+        echo "Set CFBundleVersion -> $BN"
+        /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $BN" "$PLIST"
       - xcode-project build-ipa --workspace "ios/App/App.xcworkspace" --scheme "App"
     artifacts:
       - build/ios/ipa/*.ipa
