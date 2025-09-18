@@ -42,9 +42,6 @@ workflows:
         submit_to_testflight: true
         export_compliance:
           uses_encryption: false
-        beta_build_localizations:
-          - locale: "de-DE"
-            whats_new: "Verbesserungen und Fehlerbehebungen."
         beta_app_review_info:
           contact_first_name: "Michael"
           contact_last_name: "Beinhauer"
@@ -53,4 +50,7 @@ workflows:
           demo_account_name: ""
           demo_account_password: ""
           notes: "Interner Test über TestFlight."
+        beta_build_localizations:
+          - locale: "de-DE"
+            whats_new: "Verbesserungen und Fehlerbehebungen."
 
