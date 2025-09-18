@@ -8,14 +8,13 @@ workflows:
         - Schumann
       ios_signing:
         distribution_type: app_store
-        bundle_identifier: de.svschumann.schadenaufnahme
+        bundle_identifier: "de.svschumann.schadenaufnahme"
       xcode: latest
       node: 20
     scripts:
-      - rm -rf ios
       - npm ci
       - npm run build
-      - npx cap add ios
+      - npx cap add ios || true
       - npx cap sync ios
       - '[ -f ios/App/Podfile ] || { echo "Podfile fehlt in ios/App"; ls -la ios/App; exit 1; }'
       - cd ios/App && pod install --repo-update && cd ../..
@@ -24,12 +23,13 @@ workflows:
         # Foto-Bibliothek
         /usr/libexec/PlistBuddy -c "Add :NSPhotoLibraryUsageDescription string 'Die App benötigt Zugriff auf die Fotomediathek, um Schadensbilder auszuwählen und hochzuladen.'" "$PLIST" || \
         /usr/libexec/PlistBuddy -c "Set :NSPhotoLibraryUsageDescription 'Die App benötigt Zugriff auf die Fotomediathek, um Schadensbilder auszuwählen und hochzuladen.'" "$PLIST"
-        # Kamera (falls ihr mit der Kamera schießt)
+        # Kamera
         /usr/libexec/PlistBuddy -c "Add :NSCameraUsageDescription string 'Die App benötigt Zugriff auf die Kamera, um Schäden zu fotografieren.'" "$PLIST" || \
         /usr/libexec/PlistBuddy -c "Set :NSCameraUsageDescription 'Die App benötigt Zugriff auf die Kamera, um Schäden zu fotografieren.'" "$PLIST"
-        # Mikrofon (nur wenn Videos/Audio, sonst weglassen)
+        # Mikrofon (falls nötig)
         /usr/libexec/PlistBuddy -c "Add :NSMicrophoneUsageDescription string 'Mikrofonzugriff für Videoaufnahmen (optional).'" "$PLIST" || \
         /usr/libexec/PlistBuddy -c "Set :NSMicrophoneUsageDescription 'Mikrofonzugriff für Videoaufnahmen (optional).'" "$PLIST"
+        # Build-Nummer automatisch erhöhen
         BN="${BUILD_NUMBER:-${CM_BUILD_ID:-$(date +%Y%m%d%H%M)}}"
         /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $BN" "$PLIST"
       - xcode-project use-profiles
@@ -40,9 +40,11 @@ workflows:
       app_store_connect:
         auth: integration
         submit_to_testflight: true
+
         export_compliance:
           uses_encryption: false
-        beta_app_review_info:
+
+        beta_app_review:
           contact_first_name: "Michael"
           contact_last_name: "Beinhauer"
           contact_email: "m.beinhauer@sv-schumann.de"
@@ -50,7 +52,7 @@ workflows:
           demo_account_name: ""
           demo_account_password: ""
           notes: "Interner Test über TestFlight."
+
         beta_build_localizations:
           - locale: "de-DE"
             whats_new: "Verbesserungen und Fehlerbehebungen."
-
