@@ -4,7 +4,11 @@ const config: CapacitorConfig = {
   appId: 'de.svschumann.schadenaufnahme',
   appName: 'SV Schumann – Schadenaufnahme',
   webDir: 'dist',
-  server: { allowNavigation: ['sv-schumann.de'] },
-  ios: { scheme: 'https' }
+  ios: { scheme: 'https' },
+  server: {
+    url: 'https://sv-schumann.de/form-view/11',
+    cleartext: false,
+    allowNavigation: ['sv-schumann.de', '*.sv-schumann.de']
+  }
 };
 export default config;

@@ -2,13 +2,12 @@ workflows:
   ios-internal:
     name: iOS Internal
 
-    # <-- DAS verlangt Codemagic, wenn du unten auth: integration nutzt
     integrations:
-      app_store_connect: asc   # "asc" = Name deiner Team-Integration
+      app_store_connect: asc
 
     environment:
       groups:
-        - Schumann             # deine Variablen-Gruppe (BUNDLE_ID/TEAM_ID, falls genutzt)
+        - Schumann
       ios_signing:
         distribution_type: app_store
         bundle_identifier: de.svschumann.schadenaufnahme
@@ -16,36 +15,37 @@ workflows:
       node: 20
 
     scripts:
-      # 1) Build Web
+      # 1) Web-Build
       - npm ci
       - npm run build
 
-      # 2) iOS frisch erzeugen und synchronisieren
+      # 2) Capacitor iOS sync (kein add, kein rm -rf)
       - npx cap sync ios
 
-      # 3) Guard: Podfile muss existieren
+      # 3) Guard: Podfile vorhanden
       - '[ -f ios/App/Podfile ] || { echo "Podfile fehlt in ios/App"; ls -la ios/App; exit 1; }'
 
-      # 4) CocoaPods (explizit)
-      - cd ios/App && pod install --repo-update
-      - cd ../..
+      # 4) CocoaPods
+      - cd ios/App && pod install --repo-update && cd ../..
 
-      # 5) Info.plist-Keys + Buildnummer setzen (Privacy + Bump)
+      # 5) Info.plist-Keys + Buildnummer setzen
       - |
         PLIST="ios/App/App/Info.plist"
-        # Foto-Bibliothek
-        /usr/libexec/PlistBuddy -c "Add :NSPhotoLibraryUsageDescription string 'Die App benötigt Zugriff auf die Fotomediathek, um Schadensbilder auszuwählen und hochzuladen.'" "$PLIST" || \
-        /usr/libexec/PlistBuddy -c "Set :NSPhotoLibraryUsageDescription 'Die App benötigt Zugriff auf die Fotomediathek, um Schadensbilder auszuwählen und hochzuladen.'" "$PLIST"
-        # Kamera (falls ihr mit der Kamera schießt)
-        /usr/libexec/PlistBuddy -c "Add :NSCameraUsageDescription string 'Die App benötigt Zugriff auf die Kamera, um Schäden zu fotografieren.'" "$PLIST" || \
-        /usr/libexec/PlistBuddy -c "Set :NSCameraUsageDescription 'Die App benötigt Zugriff auf die Kamera, um Schäden zu fotografieren.'" "$PLIST"
-        # Mikrofon (nur wenn Videos/Audio, sonst weglassen)
-        /usr/libexec/PlistBuddy -c "Add :NSMicrophoneUsageDescription string 'Mikrofonzugriff für Videoaufnahmen (optional).'" "$PLIST" || \
-        /usr/libexec/PlistBuddy -c "Set :NSMicrophoneUsageDescription 'Mikrofonzugriff für Videoaufnahmen (optional).'" "$PLIST"
+        # Fotobibliothek (LESEN)
+        /usr/libexec/PlistBuddy -c "Add :NSPhotoLibraryUsageDescription string 'Zugriff auf Fotomediathek zum Auswählen von Schadensbildern.'" "$PLIST" || \
+        /usr/libexec/PlistBuddy -c "Set :NSPhotoLibraryUsageDescription 'Zugriff auf Fotomediathek zum Auswählen von Schadensbildern.' " "$PLIST"
+        # Fotobibliothek (SCHREIBEN) – nur falls ihr dorthin speichert
+        /usr/libexec/PlistBuddy -c "Add :NSPhotoLibraryAddUsageDescription string 'Bilder in die Fotomediathek speichern (optional).'" "$PLIST" || \
+        /usr/libexec/PlistBuddy -c "Set :NSPhotoLibraryAddUsageDescription 'Bilder in die Fotomediathek speichern (optional).'" "$PLIST"
+        # Kamera
+        /usr/libexec/PlistBuddy -c "Add :NSCameraUsageDescription string 'Kamerazugriff für Schadenfotos.'" "$PLIST" || \
+        /usr/libexec/PlistBuddy -c "Set :NSCameraUsageDescription 'Kamerazugriff für Schadenfotos.'" "$PLIST"
 
-        # Buildnummer immer eindeutig
+        # Eindeutige Buildnummer
         BN="${BUILD_NUMBER:-${CM_BUILD_ID:-$(date +%Y%m%d%H%M)}}"
         /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $BN" "$PLIST"
+
+      # 6) Signieren & Bauen (kein 'cap open ios' im CI)
       - xcode-project use-profiles
       - xcode-project build-ipa --workspace "ios/App/App.xcworkspace" --scheme "App"
 
@@ -54,5 +54,5 @@ workflows:
 
     publishing:
       app_store_connect:
-        auth: integration       # -> erfordert den Block integrations: ... (s.o.)
+        auth: integration
         submit_to_testflight: true
