@@ -16,9 +16,6 @@ workflows:
       node: 20
 
     scripts:
-      # 0) Sicherheits-Cleanup: falls ein halber ios-Ordner im Repo liegt
-      - rm -rf ios
-
       # 1) Build Web
       - npm ci
       - npm run build
