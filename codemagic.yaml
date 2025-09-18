@@ -1,50 +1,63 @@
 workflows:
   ios-internal:
     name: iOS Internal
-    integrations:
-      app_store_connect: asc
     environment:
       groups:
-        - Schumann
+        - Schumann              # deine Gruppe mit BUNDLE_ID / TEAM_ID
       xcode: latest
       node: 20
+      ios_signing:
+        # Variante A (einfach): distribution + bundle-id -> Codemagic wählt passende
+        distribution_type: app_store
+        bundle_identifier: $BUNDLE_ID
+        # 💡 Falls du lieber explizit referenzieren willst (Variante B),
+        #    dann die 2 Zeilen oben auskommentieren und stattdessen:
+        # provisioning_profiles:
+        #   - asc                # Name deines .mobileprovision in Codemagic
+        # certificates:
+        #   - ios_dist           # Produktions-Zertifikat (passt zu app_store)
     scripts:
-      # Sanity / Info
-      - 'echo "BUNDLE_ID=$BUNDLE_ID  TEAM_ID=$TEAM_ID"'
+      - echo "BUNDLE_ID=$BUNDLE_ID  TEAM_ID=$TEAM_ID"
       - '[[ -n "$BUNDLE_ID" && -n "$TEAM_ID" ]] || { echo "Env-Variablen fehlen"; exit 1; }'
       - 'echo "Node: $(node -v)  NPM: $(npm -v)"'
 
-      # Build Web + iOS Gerüst
+      # Build Web
       - npm ci
       - npm run build
+
+      # iOS-Projekt erzeugen/abgleichen
       - npx cap add ios || true
       - npx cap sync ios
 
-      # Pods
+      # CocoaPods
       - cd ios/App && pod repo update
       - cd ios/App && pod install --repo-update
       - cd ../../
 
-      # 🔐 Code signing (korrekte Reihenfolge!)
-      - keychain initialize
-      - keychain add-certificates
-      - app-store-connect fetch-signing-files "$BUNDLE_ID" --type IOS_APP_STORE --create
+      # Profile ins Xcode-Projekt schreiben (wichtig!)
       - xcode-project use-profiles
 
-      # Export-Options
+      # Export-Options für App Store / TestFlight
       - |
         cat > /Users/builder/export_options.plist <<'PLIST'
         <?xml version="1.0" encoding="UTF-8"?>
         <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-        <plist version="1.0"><dict>
-          <key>method</key><string>app-store</string>
-        </dict></plist>
+        <plist version="1.0">
+          <dict>
+            <key>method</key><string>app-store</string>
+          </dict>
+        </plist>
         PLIST
 
-      # Archiv & Export
-      - xcode-project build-ipa --workspace "ios/App/App.xcworkspace" --scheme "App" --export-options-plist /Users/builder/export_options.plist
+      # IPA bauen
+      - xcode-project build-ipa \
+          --workspace "ios/App/App.xcworkspace" \
+          --scheme "App" \
+          --export-options-plist /Users/builder/export_options.plist
+
     artifacts:
       - build/ios/ipa/*.ipa
+
     publishing:
       app_store_connect:
         auth: integration
