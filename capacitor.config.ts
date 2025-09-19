@@ -6,7 +6,7 @@ const config: CapacitorConfig = {
   webDir: 'dist',
   ios: { scheme: 'https' },
   server: {
-    url: 'https://sv-schumann.de/app/login',
+    url: 'https://sv-schumann.de/app/',
     cleartext: false,
     allowNavigation: ['sv-schumann.de', '*.sv-schumann.de']
   }
