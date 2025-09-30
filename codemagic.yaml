@@ -59,7 +59,6 @@ workflows:
         /usr/libexec/PlistBuddy -c "Set :NSCalendarsUsageDescription 'Kalenderzugriff zum Erstellen und Verwalten von Terminen.'" "$PLIST"
       
         # --- ATS (HTTPS only, Web-Content erlauben) ---
-=======
         /usr/libexec/PlistBuddy -c "Add :NSPhotoLibraryAddUsageDescription string 'Zum Speichern von aufgenommenen Fotos in Ihrer Fotomediathek.'" "$PLIST" || \
         /usr/libexec/PlistBuddy -c "Set :NSPhotoLibraryAddUsageDescription 'Zum Speichern von aufgenommenen Fotos in Ihrer Fotomediathek.'" "$PLIST"
         /usr/libexec/PlistBuddy -c "Add :NSCameraUsageDescription string 'Kamerazugriff für Schadenfotos.'" "$PLIST" || \
@@ -75,8 +74,7 @@ workflows:
         /usr/libexec/PlistBuddy -c "Add :NSRemindersUsageDescription string 'Zugriff auf Erinnerungen für Benachrichtigungen.'" "$PLIST" || \
         /usr/libexec/PlistBuddy -c "Set :NSRemindersUsageDescription 'Zugriff auf Erinnerungen für Benachrichtigungen.'" "$PLIST"
 
-        # ATS (HTTPS + Web-Content)
->>>>>>> ca3ff78 (feat(ios): add local CocoaPod CalendarBridge and integrate in Podfile + CI)
+        # ATS (HTTPS + Web-Content) >>>>>>> ca3ff78 (feat(ios): add local CocoaPod CalendarBridge and integrate in Podfile + CI)
         /usr/libexec/PlistBuddy -c "Delete :NSAppTransportSecurity" "$PLIST" 2>/dev/null || true
         /usr/libexec/PlistBuddy -c "Add :NSAppTransportSecurity dict" "$PLIST"
         /usr/libexec/PlistBuddy -c "Add :NSAppTransportSecurity:NSAllowsArbitraryLoads bool false" "$PLIST"
