@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+
+  <!-- Basis -->
   <key>CFBundleDevelopmentRegion</key>
   <string>en</string>
 
@@ -32,17 +34,20 @@
   <key>LSRequiresIPhoneOS</key>
   <true/>
 
+  <!-- Launch / Main -->
   <key>UILaunchStoryboardName</key>
   <string>LaunchScreen</string>
 
   <key>UIMainStoryboardFile</key>
   <string>Main</string>
 
+  <!-- Geräte-Fähigkeiten -->
   <key>UIRequiredDeviceCapabilities</key>
   <array>
     <string>armv7</string>
   </array>
 
+  <!-- Orientierung -->
   <key>UISupportedInterfaceOrientations</key>
   <array>
     <string>UIInterfaceOrientationPortrait</string>
@@ -64,7 +69,11 @@
   <key>ITSAppUsesNonExemptEncryption</key>
   <false/>
 
-  <!-- Datenschutztexte -->
+  <!-- ========================================================= -->
+  <!-- Datenschutz-Texte (Prompts)                              -->
+  <!-- ========================================================= -->
+
+  <!-- Kamera / Fotos -->
   <key>NSCameraUsageDescription</key>
   <string>Kamerazugriff für Schadenfotos.</string>
 
@@ -74,7 +83,25 @@
   <key>NSPhotoLibraryAddUsageDescription</key>
   <string>Zum Speichern von aufgenommenen Fotos in Ihrer Fotomediathek.</string>
 
-  <!-- ATS: HTTPS-only, aber Web-Content (CDNs/Fonts/JS) erlauben -->
+  <!-- Mikrofon -->
+  <key>NSMicrophoneUsageDescription</key>
+  <string>Mikrofonzugriff für Sprachnotizen/Audioaufnahme.</string>
+
+  <!-- Standort (zeigt "Beim Verwenden der App") -->
+  <key>NSLocationWhenInUseUsageDescription</key>
+  <string>Benötigt, um standortbezogene Wetterdaten anzuzeigen.</string>
+
+  <!-- Optional zusätzlich: Always+WhenInUse (schadet nicht und ist Reviewer-freundlich) -->
+  <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+  <string>Benötigt, um standortbezogene Wetterdaten anzuzeigen.</string>
+
+  <!-- Kalender (EventKit) -->
+  <key>NSCalendarsUsageDescription</key>
+  <string>Kalenderzugriff zum Erstellen und Verwalten von Terminen.</string>
+
+  <!-- ========================================================= -->
+  <!-- App Transport Security                                   -->
+  <!-- ========================================================= -->
   <key>NSAppTransportSecurity</key>
   <dict>
     <key>NSAllowsArbitraryLoads</key>
@@ -82,5 +109,6 @@
     <key>NSAllowsArbitraryLoadsInWebContent</key>
     <true/>
   </dict>
+
 </dict>
 </plist>
