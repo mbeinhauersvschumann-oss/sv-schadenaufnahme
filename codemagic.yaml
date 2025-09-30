@@ -19,72 +19,54 @@ workflows:
       - npm ci
       - npm run build
 
-      # 2) Capacitor iOS sync (kein add, kein rm -rf)
+      # 2) Capacitor iOS sync (führt auch pod install aus)
       - npx cap sync ios
-      
+
       # 3) Guard: Podfile vorhanden
       - '[ -f ios/App/Podfile ] || { echo "Podfile fehlt in ios/App"; ls -la ios/App; exit 1; }'
 
-      # 4) CocoaPods
-      - cd ios/App && pod install --repo-update && cd ../..
+      # 4) CocoaPods (nochmal explizit, sauber mit verbose)
+      - cd ios/App && pod install --verbose && cd ../..
 
-      # 5) Info.plist-Keys + Buildnummer setzen
+      # 5) Info.plist-Keys + Buildnummer setzen (einmal, ohne Duplikate)
       - |
         PLIST="ios/App/App/Info.plist"
-      
-        # --- Fotos / Kamera (hattest du schon) ---
+
         /usr/libexec/PlistBuddy -c "Add :NSPhotoLibraryUsageDescription string 'Zugriff auf Fotomediathek zum Auswählen von Schadensbildern.'" "$PLIST" || \
         /usr/libexec/PlistBuddy -c "Set :NSPhotoLibraryUsageDescription 'Zugriff auf Fotomediathek zum Auswählen von Schadensbildern.'" "$PLIST"
-      
+
         /usr/libexec/PlistBuddy -c "Add :NSPhotoLibraryAddUsageDescription string 'Zum Speichern von aufgenommenen Fotos in Ihrer Fotomediathek.'" "$PLIST" || \
         /usr/libexec/PlistBuddy -c "Set :NSPhotoLibraryAddUsageDescription 'Zum Speichern von aufgenommenen Fotos in Ihrer Fotomediathek.'" "$PLIST"
-      
+
         /usr/libexec/PlistBuddy -c "Add :NSCameraUsageDescription string 'Kamerazugriff für Schadenfotos.'" "$PLIST" || \
         /usr/libexec/PlistBuddy -c "Set :NSCameraUsageDescription 'Kamerazugriff für Schadenfotos.'" "$PLIST"
-      
-        # --- Standort (zeigt „Beim Verwenden der App“) ---
-        /usr/libexec/PlistBuddy -c "Add :NSLocationWhenInUseUsageDescription string 'Benötigt, um standortbezogene Wetterdaten anzuzeigen.'" "$PLIST" || \
-        /usr/libexec/PlistBuddy -c "Set :NSLocationWhenInUseUsageDescription 'Benötigt, um standortbezogene Wetterdaten anzuzeigen.'" "$PLIST"
-      
-        # Optional, schadet nicht (einige Reviewer erwarten ihn zusätzlich)
-        /usr/libexec/PlistBuddy -c "Add :NSLocationAlwaysAndWhenInUseUsageDescription string 'Benötigt, um standortbezogene Wetterdaten anzuzeigen.'" "$PLIST" || \
-        /usr/libexec/PlistBuddy -c "Set :NSLocationAlwaysAndWhenInUseUsageDescription 'Benötigt, um standortbezogene Wetterdaten anzuzeigen.'" "$PLIST"
-      
-        # --- Mikrofon ---
+
         /usr/libexec/PlistBuddy -c "Add :NSMicrophoneUsageDescription string 'Mikrofonzugriff für Sprachnotizen/Audioaufnahme.'" "$PLIST" || \
         /usr/libexec/PlistBuddy -c "Set :NSMicrophoneUsageDescription 'Mikrofonzugriff für Sprachnotizen/Audioaufnahme.'" "$PLIST"
-      
-        # --- Kalender (falls dein CalendarBridge Events schreibt/liest) ---
-        /usr/libexec/PlistBuddy -c "Add :NSCalendarsUsageDescription string 'Kalenderzugriff zum Erstellen und Verwalten von Terminen.'" "$PLIST" || \
-        /usr/libexec/PlistBuddy -c "Set :NSCalendarsUsageDescription 'Kalenderzugriff zum Erstellen und Verwalten von Terminen.'" "$PLIST"
-      
-        # --- ATS (HTTPS only, Web-Content erlauben) ---
-        /usr/libexec/PlistBuddy -c "Add :NSPhotoLibraryAddUsageDescription string 'Zum Speichern von aufgenommenen Fotos in Ihrer Fotomediathek.'" "$PLIST" || \
-        /usr/libexec/PlistBuddy -c "Set :NSPhotoLibraryAddUsageDescription 'Zum Speichern von aufgenommenen Fotos in Ihrer Fotomediathek.'" "$PLIST"
-        /usr/libexec/PlistBuddy -c "Add :NSCameraUsageDescription string 'Kamerazugriff für Schadenfotos.'" "$PLIST" || \
-        /usr/libexec/PlistBuddy -c "Set :NSCameraUsageDescription 'Kamerazugriff für Schadenfotos.'" "$PLIST"
-        /usr/libexec/PlistBuddy -c "Add :NSMicrophoneUsageDescription string 'Mikrofon wird für Video-Aufnahmen benötigt.'" "$PLIST" || \
-        /usr/libexec/PlistBuddy -c "Set :NSMicrophoneUsageDescription 'Mikrofon wird für Video-Aufnahmen benötigt.'" "$PLIST"
+
         /usr/libexec/PlistBuddy -c "Add :NSLocationWhenInUseUsageDescription string 'Benötigt, um standortbezogene Wetterdaten anzuzeigen.'" "$PLIST" || \
         /usr/libexec/PlistBuddy -c "Set :NSLocationWhenInUseUsageDescription 'Benötigt, um standortbezogene Wetterdaten anzuzeigen.'" "$PLIST"
+
         /usr/libexec/PlistBuddy -c "Add :NSLocationAlwaysAndWhenInUseUsageDescription string 'Benötigt, um standortbezogene Wetterdaten anzuzeigen.'" "$PLIST" || \
         /usr/libexec/PlistBuddy -c "Set :NSLocationAlwaysAndWhenInUseUsageDescription 'Benötigt, um standortbezogene Wetterdaten anzuzeigen.'" "$PLIST"
-        /usr/libexec/PlistBuddy -c "Add :NSCalendarsUsageDescription string 'Zugriff auf Kalender zur Terminplanung.'" "$PLIST" || \
-        /usr/libexec/PlistBuddy -c "Set :NSCalendarsUsageDescription 'Zugriff auf Kalender zur Terminplanung.'" "$PLIST"
+
+        /usr/libexec/PlistBuddy -c "Add :NSCalendarsUsageDescription string 'Kalenderzugriff zum Erstellen und Verwalten von Terminen.'" "$PLIST" || \
+        /usr/libexec/PlistBuddy -c "Set :NSCalendarsUsageDescription 'Kalenderzugriff zum Erstellen und Verwalten von Terminen.'" "$PLIST"
+
         /usr/libexec/PlistBuddy -c "Add :NSRemindersUsageDescription string 'Zugriff auf Erinnerungen für Benachrichtigungen.'" "$PLIST" || \
         /usr/libexec/PlistBuddy -c "Set :NSRemindersUsageDescription 'Zugriff auf Erinnerungen für Benachrichtigungen.'" "$PLIST"
 
-        # ATS (HTTPS + Web-Content) >>>>>>> ca3ff78 (feat(ios): add local CocoaPod CalendarBridge and integrate in Podfile + CI)
+        # ATS (HTTPS + Web-Content)
         /usr/libexec/PlistBuddy -c "Delete :NSAppTransportSecurity" "$PLIST" 2>/dev/null || true
         /usr/libexec/PlistBuddy -c "Add :NSAppTransportSecurity dict" "$PLIST"
         /usr/libexec/PlistBuddy -c "Add :NSAppTransportSecurity:NSAllowsArbitraryLoads bool false" "$PLIST"
         /usr/libexec/PlistBuddy -c "Add :NSAppTransportSecurity:NSAllowsArbitraryLoadsInWebContent bool true" "$PLIST"
-      
+
         # Buildnummer
         BN="${BUILD_NUMBER:-${CM_BUILD_ID:-$(date +%Y%m%d%H%M)}}"
         /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $BN" "$PLIST"
 
-      # 6) Signieren & Bauen (kein 'cap open ios' im CI)
+      # 6) Signieren & Bauen
       - xcode-project use-profiles
       - xcode-project build-ipa --workspace "ios/App/App.xcworkspace" --scheme "App"
 
