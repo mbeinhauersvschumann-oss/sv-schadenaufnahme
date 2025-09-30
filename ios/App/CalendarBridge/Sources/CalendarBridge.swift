@@ -6,7 +6,8 @@ import EventKit
 public class CalendarBridge: CAPPlugin {
     private let store = EKEventStore()
 
-    @objc public func requestPermissions(_ call: CAPPluginCall) {
+    // Wichtig: CAPPlugin bietet eine Basis-Implementation -> override + public
+    @objc override public func requestPermissions(_ call: CAPPluginCall) {
         store.requestAccess(to: .event) { granted, error in
             if let error = error {
                 call.reject("perm error: \(error.localizedDescription)")
