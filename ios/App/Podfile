@@ -21,7 +21,7 @@ end
 target 'App' do
   capacitor_pods
   # Add your Pods here
-  pod 'CalendarBridge', :path => '../CalendarBridge'
+  pod 'CalendarBridge', :path => './CalendarBridge'
 end
 
 post_install do |installer|
