@@ -31,17 +31,40 @@ workflows:
       # 5) Info.plist-Keys + Buildnummer setzen
       - |
         PLIST="ios/App/App/Info.plist"
+      
+        # --- Fotos / Kamera (hattest du schon) ---
         /usr/libexec/PlistBuddy -c "Add :NSPhotoLibraryUsageDescription string 'Zugriff auf Fotomediathek zum Auswählen von Schadensbildern.'" "$PLIST" || \
-        /usr/libexec/PlistBuddy -c "Set :NSPhotoLibraryUsageDescription 'Zugriff auf Fotomediathek zum Auswählen von Schadensbildern.' " "$PLIST"
-        /usr/libexec/PlistBuddy -c "Add :NSPhotoLibraryAddUsageDescription string 'Bilder in die Fotomediathek speichern (optional).'" "$PLIST" || \
-        /usr/libexec/PlistBuddy -c "Set :NSPhotoLibraryAddUsageDescription 'Bilder in die Fotomediathek speichern (optional).'" "$PLIST"
+        /usr/libexec/PlistBuddy -c "Set :NSPhotoLibraryUsageDescription 'Zugriff auf Fotomediathek zum Auswählen von Schadensbildern.'" "$PLIST"
+      
+        /usr/libexec/PlistBuddy -c "Add :NSPhotoLibraryAddUsageDescription string 'Zum Speichern von aufgenommenen Fotos in Ihrer Fotomediathek.'" "$PLIST" || \
+        /usr/libexec/PlistBuddy -c "Set :NSPhotoLibraryAddUsageDescription 'Zum Speichern von aufgenommenen Fotos in Ihrer Fotomediathek.'" "$PLIST"
+      
         /usr/libexec/PlistBuddy -c "Add :NSCameraUsageDescription string 'Kamerazugriff für Schadenfotos.'" "$PLIST" || \
         /usr/libexec/PlistBuddy -c "Set :NSCameraUsageDescription 'Kamerazugriff für Schadenfotos.'" "$PLIST"
+      
+        # --- Standort (zeigt „Beim Verwenden der App“) ---
+        /usr/libexec/PlistBuddy -c "Add :NSLocationWhenInUseUsageDescription string 'Benötigt, um standortbezogene Wetterdaten anzuzeigen.'" "$PLIST" || \
+        /usr/libexec/PlistBuddy -c "Set :NSLocationWhenInUseUsageDescription 'Benötigt, um standortbezogene Wetterdaten anzuzeigen.'" "$PLIST"
+      
+        # Optional, schadet nicht (einige Reviewer erwarten ihn zusätzlich)
+        /usr/libexec/PlistBuddy -c "Add :NSLocationAlwaysAndWhenInUseUsageDescription string 'Benötigt, um standortbezogene Wetterdaten anzuzeigen.'" "$PLIST" || \
+        /usr/libexec/PlistBuddy -c "Set :NSLocationAlwaysAndWhenInUseUsageDescription 'Benötigt, um standortbezogene Wetterdaten anzuzeigen.'" "$PLIST"
+      
+        # --- Mikrofon ---
+        /usr/libexec/PlistBuddy -c "Add :NSMicrophoneUsageDescription string 'Mikrofonzugriff für Sprachnotizen/Audioaufnahme.'" "$PLIST" || \
+        /usr/libexec/PlistBuddy -c "Set :NSMicrophoneUsageDescription 'Mikrofonzugriff für Sprachnotizen/Audioaufnahme.'" "$PLIST"
+      
+        # --- Kalender (falls dein CalendarBridge Events schreibt/liest) ---
+        /usr/libexec/PlistBuddy -c "Add :NSCalendarsUsageDescription string 'Kalenderzugriff zum Erstellen und Verwalten von Terminen.'" "$PLIST" || \
+        /usr/libexec/PlistBuddy -c "Set :NSCalendarsUsageDescription 'Kalenderzugriff zum Erstellen und Verwalten von Terminen.'" "$PLIST"
+      
+        # --- ATS (HTTPS only, Web-Content erlauben) ---
         /usr/libexec/PlistBuddy -c "Delete :NSAppTransportSecurity" "$PLIST" 2>/dev/null || true
         /usr/libexec/PlistBuddy -c "Add :NSAppTransportSecurity dict" "$PLIST"
         /usr/libexec/PlistBuddy -c "Add :NSAppTransportSecurity:NSAllowsArbitraryLoads bool false" "$PLIST"
         /usr/libexec/PlistBuddy -c "Add :NSAppTransportSecurity:NSAllowsArbitraryLoadsInWebContent bool true" "$PLIST"
-
+      
+        # Buildnummer
         BN="${BUILD_NUMBER:-${CM_BUILD_ID:-$(date +%Y%m%d%H%M)}}"
         /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $BN" "$PLIST"
 
