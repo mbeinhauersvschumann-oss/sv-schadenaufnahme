@@ -15,5 +15,6 @@ Pod::Spec.new do |s|
   s.requires_arc = true
 
   # Abhängigkeiten
-  s.dependency 'Capacitor', '>= 5.0' # oder deine Cap-Version, z.B. 6.x
+  s.frameworks = 'EventKit'
+  s.dependency 'Capacitor'
 end
