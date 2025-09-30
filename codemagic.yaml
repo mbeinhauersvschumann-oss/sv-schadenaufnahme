@@ -35,7 +35,6 @@ workflows:
         # --- Fotos / Kamera (hattest du schon) ---
         /usr/libexec/PlistBuddy -c "Add :NSPhotoLibraryUsageDescription string 'Zugriff auf Fotomediathek zum Auswählen von Schadensbildern.'" "$PLIST" || \
         /usr/libexec/PlistBuddy -c "Set :NSPhotoLibraryUsageDescription 'Zugriff auf Fotomediathek zum Auswählen von Schadensbildern.'" "$PLIST"
-<<<<<<< HEAD
       
         /usr/libexec/PlistBuddy -c "Add :NSPhotoLibraryAddUsageDescription string 'Zum Speichern von aufgenommenen Fotos in Ihrer Fotomediathek.'" "$PLIST" || \
         /usr/libexec/PlistBuddy -c "Set :NSPhotoLibraryAddUsageDescription 'Zum Speichern von aufgenommenen Fotos in Ihrer Fotomediathek.'" "$PLIST"
