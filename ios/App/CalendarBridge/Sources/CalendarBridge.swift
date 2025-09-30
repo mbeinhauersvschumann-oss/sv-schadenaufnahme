@@ -49,7 +49,7 @@ public class CalendarBridge: CAPPlugin {
         let pred = store.predicateForEvents(withStart: start, end: end, calendars: cals)
         let events = store.events(matching: pred).map { ev -> [String: Any] in
             [
-                "id": ev.eventIdentifier,
+                "id": ev.eventIdentifier ?? "",
                 "title": ev.title ?? "",
                 "notes": ev.notes ?? "",
                 "location": ev.location ?? "",
