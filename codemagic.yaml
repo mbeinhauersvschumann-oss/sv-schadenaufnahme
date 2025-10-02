@@ -56,6 +56,12 @@ workflows:
         /usr/libexec/PlistBuddy -c "Add :NSRemindersUsageDescription string 'Zugriff auf Erinnerungen für Benachrichtigungen.'" "$PLIST" || \
         /usr/libexec/PlistBuddy -c "Set :NSRemindersUsageDescription 'Zugriff auf Erinnerungen für Benachrichtigungen.'" "$PLIST"
 
+        /usr/libexec/PlistBuddy -c "Add :NSCalendarsFullAccessUsageDescription string 'Die App benötigt Vollzugriff auf Kalender, um Termine anzulegen, zu ändern und zu löschen.'" "$PLIST" || \
+        /usr/libexec/PlistBuddy -c "Set :NSCalendarsFullAccessUsageDescription 'Die App benötigt Vollzugriff auf Kalender, um Termine anzulegen, zu ändern und zu löschen.'" "$PLIST"
+        
+        /usr/libexec/PlistBuddy -c "Add :NSCalendarsWriteOnlyAccessUsageDescription string 'Die App benötigt Schreibzugriff, um Termine zu erstellen.'" "$PLIST" || \
+        /usr/libexec/PlistBuddy -c "Set :NSCalendarsWriteOnlyAccessUsageDescription 'Die App benötigt Schreibzugriff, um Termine zu erstellen.'" "$PLIST"
+
         # ATS (HTTPS + Web-Content)
         /usr/libexec/PlistBuddy -c "Delete :NSAppTransportSecurity" "$PLIST" 2>/dev/null || true
         /usr/libexec/PlistBuddy -c "Add :NSAppTransportSecurity dict" "$PLIST"
