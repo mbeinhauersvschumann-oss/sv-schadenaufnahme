@@ -99,6 +99,12 @@
   <key>NSCalendarsUsageDescription</key>
   <string>Kalenderzugriff zum Erstellen und Verwalten von Terminen.</string>
 
+  <!-- iOS 17+: Vollzugriff / Schreibzugriff -->
+  <key>NSCalendarsFullAccessUsageDescription</key>
+  <string>Die App benötigt Vollzugriff auf Kalender, um Termine anzulegen, zu ändern und zu löschen.</string>
+  <key>NSCalendarsWriteOnlyAccessUsageDescription</key>
+  <string>Die App benötigt Schreibzugriff, um Termine zu erstellen.</string>
+
   <!-- ========================================================= -->
   <!-- App Transport Security                                   -->
   <!-- ========================================================= -->
