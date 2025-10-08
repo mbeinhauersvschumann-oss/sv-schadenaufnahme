@@ -1,0 +1,478 @@
+/* wp-content/plugins/svs-app/assets/app.css */
+
+/* ===== Baseline ===== */
+/* Globale Ruhe – keine Overscrolls */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overscroll-behavior: none;
+  /* Pull-to-Refresh weiter eindämmen (iOS/Safari modern) */
+  overscroll-behavior-y: none;
+  touch-action: pan-x;
+}
+
+/* === iOS Safe-Area === */
+:root{
+  --safe-top: env(safe-area-inset-top);
+  --safe-right: env(safe-area-inset-right);
+  --safe-bottom: env(safe-area-inset-bottom);
+  --safe-left: env(safe-area-inset-left);
+  
+  /* Widget Maße */
+  --widget-max-w: 464px;    /* Zielbreite */
+  --widget-min-w: 260px;    /* kleinste Breite bevor Umbruch */
+  --widget-max-h: 260px;    /* harte Höhe, Inhalt scrollt/ellipsis */
+  --widget-gap: 14px;
+
+  /* Breakpoints → Anzahl pro Zeile */
+  --widgets-per-row-xs: 1;
+  --widgets-per-row-sm: 2;
+  --widgets-per-row-md: 3;
+  --widgets-per-row-lg: 4;
+}
+
+/* App-Bar: oben + seitlich Safe-Area einrechnen */
+.app-bar{
+  /* war: padding: 16px 18px;  (oder je Seite individuell) */
+  padding:
+    calc(16px + var(--safe-top))
+    calc(18px + var(--safe-right))
+    16px
+    calc(18px + var(--safe-left));
+}
+
+/* unten Platz für Home-Bar */
+.page{ padding-bottom: var(--safe-bottom); 
+}
+
+/* === Page Transition Fade === */
+.page {
+  opacity: 0;
+  transform: scale(.685);
+  transition: opacity .45s ease,       /* länger + smoother */
+              transform .45s ease;
+  will-change: opacity, transform;
+}
+body.svs-app.ready .page {
+  opacity: 1;
+  transform: scale(1);
+}
+body.svs-app.leaving .page {
+  opacity: 0;
+  transform: scale(.985);
+}
+
+/* Fixierter App-Viewport (kein Scrollen) – wie gehabt */
+body.svs-app.app-screen.login-screen {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: #0f0f17;
+  overflow: hidden;
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  isolation: isolate;
+}
+
+/* Vollflächiges Background-Layer */
+.login-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0; /* unter dem Inhalt, über dem Body */
+  background:
+    linear-gradient(180deg, rgba(7,12,20,.65), rgba(7,12,20,.90)),
+    url("/wp-content/uploads/app/background.png") center / cover no-repeat;
+  transform: translateZ(0);       /* iOS Paint-Fix */
+  will-change: transform;
+}
+
+/* --- Login-Stack --- */
+.login-wrap {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 25px;
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 20px;
+  box-sizing: border-box;
+
+  --login-offset: 120px;
+  transform: translateY(var(--login-offset));
+  will-change: transform;
+}
+
+/* Auf sehr kleinen Höhen etwas weniger Offset */
+@media (max-height: 700px){
+  .login-wrap { --login-offset: 120px; }
+}
+@media (max-height: 620px){
+  .login-wrap { --login-offset: 90px; }
+} /* ✅ fehlende Klammer geschlossen */
+
+/* Logo */
+.brand-logo {
+  width: clamp(240px, 50vw, 400px);
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  filter: drop-shadow(0 10px 26px rgba(0,0,0,.45));
+}
+
+/* Karte */
+.login-container {
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 14px 36px rgba(0,0,0,.30);
+  box-sizing: border-box;
+}
+
+/* Überschrift */
+.login-container h1 {
+  margin: 0 0 14px;
+  font-size: 20px;
+  line-height: 1.25;
+  text-align: center;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* Felder */
+.login-container input {
+  width: 100%;
+  box-sizing: border-box;
+  height: 46px;
+  padding: 0 14px;
+  margin: 0 0 14px;
+  border: 1px solid #dde1ea;
+  border-radius: 10px;
+  font-size: 16px;
+  outline: none;
+  transition: border-color .15s, box-shadow .15s;
+  background: #fff;
+}
+.login-container input:focus {
+  border-color: #3a77ff;
+  box-shadow: 0 0 0 3px rgba(58,119,255,.18);
+}
+
+/* Button */
+.login-container button {
+  width: 100%;
+  height: 48px;
+  border: 0;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #4b8aff, #2563eb);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(37,99,235,.35);
+}
+.login-container button:active { transform: translateY(1px); }
+
+/* Alternative Links */
+.login-container .alt {
+  margin-top: 14px;
+  text-align: center;
+}
+.login-container .alt a {
+  color: #cc2d7c;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+/* CMP/Cookie Layers in App ausblenden */
+.svs-app .cmplz-cookiebanner,
+.svs-app .cmplz-manage-consent,
+.svs-app #cmplz-manage-consent,
+.svs-app [data-category="cmplz"],
+.svs-app [data-cmplz],
+.svs-app .cookie-notice,
+.svs-app .cn-bottom,
+.svs-app .cc-window,
+.svs-app .cc-banner {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* Mikro-Tweaks: sehr kleine Höhen (Querformat etc.) */
+@media (max-height: 520px) {
+  .brand-logo { display: none; }
+  .login-container { padding: 18px; }
+}
+
+/* ===== Splash / Start ===== */
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  background: #0f0f17;
+  overflow: hidden;
+}
+
+.splash .logo-wrap {
+  width: 160px;
+  height: 160px;
+  display: grid;
+  place-items: center;
+  will-change: transform, opacity;
+  --splash-dur: 1800ms;
+  animation: logo-pop-snappy var(--splash-dur) cubic-bezier(.25,1,.5,1) forwards;
+}
+
+@keyframes logo-pop-snappy {
+  0%   { transform: scale(.30); opacity: 0; }
+  55%  { transform: scale(1.15); opacity: 1; }
+  75%  { transform: scale(.88); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .splash .logo-wrap:not([data-anim="force"]) {
+    animation: none !important;
+    opacity: 1; transform: none;
+  }
+}
+
+/* ===== Dashboard ===== */
+body.svs-app.app-screen.dashboard-screen {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  background: #0f1a2b;
+  color: #e5e7eb;
+  overflow: hidden;
+}
+
+/* App-Bar */
+.app-bar {
+  display:flex; align-items:center; justify-content:space-between;
+  /* Safe-Area Padding hier ebenfalls anwenden (vereinheitlicht) */
+  padding:
+    calc(16px + var(--safe-top))
+    calc(18px + var(--safe-right))
+    16px
+    calc(18px + var(--safe-left));
+  background: rgba(15, 26, 43, .7);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.app-bar .greeting { font-weight:600; letter-spacing:.01em; }
+.icon-btn {
+  background: transparent; border: 1px solid rgba(255,255,255,.18);
+  color: #e5e7eb; padding: 6px 10px; border-radius: 10px; cursor: pointer;
+}
+.icon-btn:active { transform: translateY(1px); }
+
+/* Chip + Badge */
+.chip {
+  display:inline-block; padding: 4px 8px; border-radius: 999px; font-size: 12px; margin-right: 8px;
+  border: 1px solid transparent;
+}
+.chip-offline { background:#3f2d2d; color:#ffd1d1; border-color:#664; }
+.badge {
+  display:inline-grid; place-items:center; min-width:18px; height:18px; padding:0 6px;
+  font-size:12px; border-radius:999px; background:#ef4444; color:#fff; margin-left:8px;
+}
+
+/* Wrapper */
+.dash-wrap {
+  overflow:auto;
+  /* unten Safe-Area addieren, ansonsten unverändert */
+  padding: 20px 18px calc(32px + var(--safe-bottom));
+  /* gegen Browser-Pull-to-Refresh */
+  overscroll-behavior-y: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Tile-Grid */
+.tiles-grid {
+  display:grid; gap: 14px;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+}
+@media (min-width: 820px){ .tiles-grid{ grid-template-columns: repeat(3, minmax(0,1fr)); } }
+@media (min-width: 1180px){ .tiles-grid{ grid-template-columns: repeat(4, minmax(0,1fr)); } }
+
+.tile {
+  display:block; padding:16px; border-radius:14px; text-decoration:none;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.08);
+  color: #e5e7eb;
+  transition: transform .08s ease, background .2s ease, border-color .2s ease;
+}
+.tile:hover { background: rgba(255,255,255,.10); border-color: rgba(255,255,255,.18); transform: translateY(-1px); }
+.tile:active { transform: translateY(0); }
+
+.tile-emoji { font-size: 28px; line-height: 1; margin-bottom: 8px; }
+.tile-title { font-weight: 700; letter-spacing:.01em; display:flex; align-items:center; gap:6px; }
+.tile-sub { font-size: 13px; opacity: .8; margin-top: 4px; }
+
+.tile-danger { background: rgba(239, 68, 68, .10); border-color: rgba(239, 68, 68, .25); }
+.tile-danger:hover { background: rgba(239, 68, 68, .18); border-color: rgba(239, 68, 68, .38); }
+
+/* Panels */
+.panel {
+  margin-top: 18px; padding: 16px; border-radius: 14px;
+  background: rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08);
+}
+.panel-title { margin: 0 0 10px; font-size: 15px; font-weight: 700; }
+.activity-list { list-style:none; padding:0; margin:0; }
+.activity-list li { padding: 8px 0; border-bottom: 1px dotted rgba(255,255,255,.08); }
+.activity-list li:last-child { border-bottom:0; }
+.muted { opacity:.7; }
+
+/* === Wetter-Kachel ======================================================= */
+.tile-wx { position: relative; }
+.tile-wx .wx-btn {
+  margin-left: auto; margin-right: 0; margin-top: -2px;
+  appearance: none; border: 1px solid rgba(255,255,255,.18);
+  background: rgba(255,255,255,.06); color: #fff;
+  border-radius: 10px; padding: 2px 8px; font-weight: 800; cursor: pointer;
+}
+.tile-wx .wx-btn:active{ transform: translateY(1px); }
+
+.tile-wx .wx-now { display:flex; gap:12px; align-items:center; margin-top:8px; }
+.tile-wx .wx-ico { font-size:28px; line-height:1; }
+.tile-wx .wx-temp > div { font-size:18px; font-weight:700; }
+.tile-wx .wx-temp small { opacity:.85; }
+.tile-wx .wx-hours {
+  display:grid; grid-template-columns: repeat(3, 1fr);
+  gap:6px; margin-top:10px;
+}
+@media (min-width: 820px){ .tile-wx .wx-hours{ grid-template-columns: repeat(4, 1fr); } }
+@media (min-width: 1180px){ .tile-wx .wx-hours{ grid-template-columns: repeat(6, 1fr); } }
+.tile-wx .wx-hour {
+  padding:8px; border-radius:10px; background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.10);
+  display:grid; grid-template-columns: 1fr auto auto auto; gap:6px; align-items:center;
+}
+.tile-wx[data-wx-loading="1"]{ opacity:.6; }
+.tile-wx[data-wx-loading="error"]{ outline:2px solid rgba(229,82,82,.6); }
+
+.tile-wx{ max-width:400px; width:100%; }
+/* Fehlertext sichtbar machen */
+.tile-wx[data-wx-loading="error"]::after{
+  content: attr(data-wx-error);
+  display:block; margin-top:8px; font-size:12px; line-height:1.35; color:#ffd1d1;
+  background: rgba(193,70,74,.12); border:1px solid rgba(193,70,74,.35);
+  padding:6px 8px; border-radius:8px; white-space:pre-wrap; box-sizing:border-box;
+}
+
+/* Container */
+.widgets{
+  display:flex;
+  flex-wrap: wrap;
+  gap: var(--widget-gap);
+  align-items: stretch;
+  justify-content: flex-start; /* NICHT space-between → keine gezwungene Dehnung */
+}
+
+/* Item-Basis */
+.widgets > .tile{
+  width: 100%;                /* NEU: füllt die zugewiesene Spalte immer */
+  flex: 0 1 calc((100% - (var(--cols)-1)*var(--widget-gap)) / var(--cols));
+  max-width: min(var(--widget-max-w), 100%);
+  min-width: var(--widget-min-w);
+  box-sizing: border-box;
+  max-height: var(--widget-max-h);
+  overflow: hidden;
+}
+
+/* dynamische Spaltenzahl über Breakpoints */
+@media (max-width: 479px){  .widgets{ --cols: var(--widgets-per-row-xs); } }
+@media (min-width: 480px) and (max-width: 820px){ .widgets{ --cols: var(--widgets-per-row-sm); } }
+@media (min-width: 821px) and (max-width: 1180px){ .widgets{ --cols: var(--widgets-per-row-md); } }
+@media (min-width: 1181px){ .widgets{ --cols: var(--widgets-per-row-lg); } }
+
+/* Sicherheit: ganz kleine Breiten → volle Breite */
+@media (max-width: 360px){
+  .widgets > .tile{ min-width: 100%; max-width: 100%; flex-basis: 100%; }
+}
+
+/* Spezifische Widgets: gleiche Regeln */
+.tile-wx, .tile-cal{
+  max-width: min(var(--widget-max-w), 100%);
+  min-width: var(--widget-min-w);
+  max-height: var(--widget-max-h);
+}
+
+/* Inhalt, der höher ist, sauber abschneiden/scrollen */
+.tile-wx .wx-hours{ overflow:auto; }
+.tile-cal #cal-list{ max-height: calc(var(--widget-max-h) - 92px); overflow:auto; }
+
+/* ==== Route Tile (kompakt; respektiert deine max-H/W) ================== */
+.tile-route {
+  display: grid;
+  grid-template-rows: auto auto 1fr auto auto auto;
+  gap: 8px;
+  max-width: var(--widget-max-w, 464px);
+  max-height: var(--widget-max-h, 260px);
+  overflow: hidden;
+}
+
+/* Titel-Badges rechts neben dem Titel */
+.tile-route .route-badges { margin-left: 8px; display: inline-flex; gap: 6px; vertical-align: middle; }
+.tile-route .badge {
+  font-size: 11px; line-height: 1; padding: 4px 6px; border-radius: 6px; opacity: .9;
+  background: var(--chip-bg, rgba(255,255,255,.06)); border: 1px solid rgba(255,255,255,.08);
+}
+
+/* Body + Skeleton */
+.tile-route .route-body { display: grid; align-content: start; gap: 6px; overflow: hidden; }
+.tile-route .rt-title { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tile-route .rt-addr  { opacity: .8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tile-route .rt-time  { font-size: 12px; opacity: .75; }
+
+.tile-route .rt-skel .sk {
+  height: 10px; border-radius: 6px; margin: 6px 0;
+  background: linear-gradient(90deg, rgba(255,255,255,.08), rgba(255,255,255,.16), rgba(255,255,255,.08));
+  animation: rtShine 1.2s linear infinite;
+}
+.tile-route .rt-skel .w40{ width:40% } .tile-route .rt-skel .w60{width:60%} .tile-route .rt-skel .w90{width:90%}
+@keyframes rtShine{ 0%{background-position:-120px 0} 100%{background-position:120px 0} }
+
+/* Actions */
+.tile-route .route-actions { display: flex; gap: 8px; }
+.tile-route .route-actions .btn:disabled { opacity: .6; cursor: not-allowed; }
+
+/* Liste weiterer Stopps: eigener Mini-Scrollbereich, bleibt immer im Tile */
+.tile-route .route-list { display: grid; gap: 4px; max-height: 56px; overflow: auto; }
+.tile-route .route-list li {
+  display: grid; grid-template-columns: 48px minmax(0, 1fr) minmax(0, 1fr);
+  gap: 6px; font-size: 13px; line-height: 1.2; opacity: .95;
+}
+.tile-route .route-list .t    { opacity: .75; }
+.tile-route .route-list .ttl  { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tile-route .route-list .addr { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: .8; }
+
+/* Disclosure */
+.tile-route .route-more {
+  justify-self: start; font-size: 12px; opacity: .9; background: transparent; border: 0; padding: 2px 0; cursor: pointer;
+}
+
+/* iPad: etwas mehr Luft, Buttons nebeneinander */
+@media (min-width: 821px){
+  .tile-route{ gap: 10px; }
+  .tile-route .route-actions .btn { padding: 8px 12px; }
+}
+
+/* XS: falls sehr schmal, nur ein Button sichtbar (JS blendet 2. aus) */
+@media (max-width: 360px){
+  .tile-route .route-actions { display: grid; grid-template-columns: 1fr; }
+}
