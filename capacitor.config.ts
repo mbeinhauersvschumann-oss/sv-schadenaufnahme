@@ -6,7 +6,6 @@ const config: CapacitorConfig = {
   webDir: 'dist',
   ios: { scheme: 'capacitor' },
   server: {
-    url: 'undefined',
     cleartext: false,
     allowNavigation: []
   }
