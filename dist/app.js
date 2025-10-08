@@ -3,6 +3,9 @@
    Deaktivieren: /app/dashboard?debug=0
    Button "🐞 Debug" zeigt Diagnose & kopiert sie in die Zwischenablage.
 =========================================================================== */
+
+const API_BASE = 'https://www.sv-schumann.de/wp-json/svs-app/v1';
+
 (function(){
   const qs = location.search || '';
   if (/[?&]debug=0\b/.test(qs)) { try{ localStorage.removeItem('svs_debug'); }catch{} return; }
@@ -591,7 +594,7 @@ window.SVSAPP.handleLoginSuccess = handleLoginSuccess;
 
   async function fetchWX(lat,lon){
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Europe/Berlin';
-    const url = `/wp-json/svs-app/v1/wx?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&tz=${encodeURIComponent(tz)}`;
+    const url = `${API_BASE}/wx?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&tz=${encodeURIComponent(tz)}`;
     log('request', {url,lat,lon,tz});
     const r = await fetch(url, {credentials:'same-origin', cache:'no-store'});
     if(!r.ok){
@@ -670,7 +673,7 @@ window.SVSAPP.handleLoginSuccess = handleLoginSuccess;
   window.fetch = async function(input, init){
     // nur unseren WX-Endpunkt abfangen
     const url = (typeof input === 'string') ? input : (input?.url || '');
-    if (/\/wp-json\/svs-app\/v1\/wx\b/.test(url) && !/[?&]debug=1\b/.test(url)) {
+    if (/svs-app\/v1\/wx\b/.test(url) && !/[?&]debug=1\b/.test(url)) {
       const u = new URL(url, location.origin);
       u.searchParams.set('debug','1'); // Debug einschalten
       const res = await origFetch(u.toString(), init);
@@ -955,7 +958,7 @@ window.SVSAPP.handleLoginSuccess = handleLoginSuccess;
       }
 
       try{
-        const url = `/wp-json/svs-app/v1/eta?` + qs({ origin: originStr, dest: n.location });
+        const url = `${API_BASE}/eta?` + qs({ origin: originStr, dest: n.location });
         const data = await fetchJSON(url);
 
         if (data && data.ok && typeof data.eta_min==='number') {

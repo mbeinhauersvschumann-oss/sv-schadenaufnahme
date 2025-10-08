@@ -1,4 +1,4 @@
-/* wp-content/plugins/svs-app/assets/app.css */
+/* assets/app.css */
 
 /* ===== Baseline ===== */
 /* Globale Ruhe – keine Overscrolls */
@@ -83,8 +83,8 @@ body.svs-app.app-screen.login-screen {
   inset: 0;
   z-index: 0; /* unter dem Inhalt, über dem Body */
   background:
-    linear-gradient(180deg, rgba(7,12,20,.65), rgba(7,12,20,.90)),
-    url("/wp-content/uploads/app/background.png") center / cover no-repeat;
+   linear-gradient(180deg, rgba(7,12,20,.65), rgba(7,12,20,.90)),
+   url("./assets/background.png") center / cover no-repeat;
   transform: translateZ(0);       /* iOS Paint-Fix */
   will-change: transform;
 }
