@@ -1,6 +1,6 @@
-workflows:
+ workflows:
   ios-internal:
-    name: iOS Internal
+    name: iOS DEV Build
 
     integrations:
       app_store_connect: asc
@@ -10,7 +10,7 @@ workflows:
         - Schumann
       ios_signing:
         distribution_type: app_store
-        bundle_identifier: de.svschumann.schadenaufnahme
+        bundle_identifier: de.svschumann.schadenaufnahme.dev
       xcode: latest
       node: 20
 
