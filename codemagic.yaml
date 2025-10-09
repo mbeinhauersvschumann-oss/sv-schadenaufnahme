@@ -1,4 +1,4 @@
- workflows:
+workflows:
   ios-internal:
     name: iOS DEV Build
 
@@ -13,68 +13,92 @@
         bundle_identifier: de.svschumann.schadenaufnahme
       xcode: latest
       node: 20
+      vars:
+        DEV_HOST: "dev.sv-schumann.de"
 
     scripts:
-      # 1) Web-Build
-      - npm ci
-      - npm run build
+      # 1) Dependencies (KEIN Web-Build – wir laden live über server.url)
+      - name: Install dependencies
+        script: |
+          npm ci
 
-      # 2) Capacitor iOS sync (führt auch pod install aus)
-      - npx cap sync ios
+      # 2) Capacitor iOS sync (native sync; kein dist-copy nötig)
+      - name: Capacitor sync (iOS)
+        script: |
+          npx cap sync ios
 
       # 3) Guard: Podfile vorhanden
-      - '[ -f ios/App/Podfile ] || { echo "Podfile fehlt in ios/App"; ls -la ios/App; exit 1; }'
+      - name: Ensure Podfile exists
+        script: |
+          [ -f ios/App/Podfile ] || { echo "Podfile fehlt in ios/App"; ls -la ios/App; exit 1; }
 
-      # 4) CocoaPods (nochmal explizit, sauber mit verbose)
-      - cd ios/App && pod install --verbose && cd ../..
+      # 4) CocoaPods (explizit & verbose)
+      - name: CocoaPods install
+        script: |
+          cd ios/App && pod install --verbose && cd ../..
 
-      # 5) Info.plist-Keys + Buildnummer setzen (einmal, ohne Duplikate)
-      - |
-        PLIST="ios/App/App/Info.plist"
+      # 5) Info.plist-Keys + ATS für DEV-Host + Buildnummer
+      - name: Patch Info.plist (usage + ATS + build number)
+        script: |
+          PLIST="ios/App/App/Info.plist"
 
-        /usr/libexec/PlistBuddy -c "Add :NSPhotoLibraryUsageDescription string 'Zugriff auf Fotomediathek zum Auswählen von Schadensbildern.'" "$PLIST" || \
-        /usr/libexec/PlistBuddy -c "Set :NSPhotoLibraryUsageDescription 'Zugriff auf Fotomediathek zum Auswählen von Schadensbildern.'" "$PLIST"
+          # Usage strings
+          /usr/libexec/PlistBuddy -c "Add :NSPhotoLibraryUsageDescription string 'Zugriff auf Fotomediathek zum Auswählen von Schadensbildern.'" "$PLIST" || \
+          /usr/libexec/PlistBuddy -c "Set :NSPhotoLibraryUsageDescription 'Zugriff auf Fotomediathek zum Auswählen von Schadensbildern.'" "$PLIST"
 
-        /usr/libexec/PlistBuddy -c "Add :NSPhotoLibraryAddUsageDescription string 'Zum Speichern von aufgenommenen Fotos in Ihrer Fotomediathek.'" "$PLIST" || \
-        /usr/libexec/PlistBuddy -c "Set :NSPhotoLibraryAddUsageDescription 'Zum Speichern von aufgenommenen Fotos in Ihrer Fotomediathek.'" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Add :NSPhotoLibraryAddUsageDescription string 'Zum Speichern von aufgenommenen Fotos in Ihrer Fotomediathek.'" "$PLIST" || \
+          /usr/libexec/PlistBuddy -c "Set :NSPhotoLibraryAddUsageDescription 'Zum Speichern von aufgenommenen Fotos in Ihrer Fotomediathek.'" "$PLIST"
 
-        /usr/libexec/PlistBuddy -c "Add :NSCameraUsageDescription string 'Kamerazugriff für Schadenfotos.'" "$PLIST" || \
-        /usr/libexec/PlistBuddy -c "Set :NSCameraUsageDescription 'Kamerazugriff für Schadenfotos.'" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Add :NSCameraUsageDescription string 'Kamerazugriff für Schadenfotos.'" "$PLIST" || \
+          /usr/libexec/PlistBuddy -c "Set :NSCameraUsageDescription 'Kamerazugriff für Schadenfotos.'" "$PLIST"
 
-        /usr/libexec/PlistBuddy -c "Add :NSMicrophoneUsageDescription string 'Mikrofonzugriff für Sprachnotizen/Audioaufnahme.'" "$PLIST" || \
-        /usr/libexec/PlistBuddy -c "Set :NSMicrophoneUsageDescription 'Mikrofonzugriff für Sprachnotizen/Audioaufnahme.'" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Add :NSMicrophoneUsageDescription string 'Mikrofonzugriff für Sprachnotizen/Audioaufnahme.'" "$PLIST" || \
+          /usr/libexec/PlistBuddy -c "Set :NSMicrophoneUsageDescription 'Mikrofonzugriff für Sprachnotizen/Audioaufnahme.'" "$PLIST"
 
-        /usr/libexec/PlistBuddy -c "Add :NSLocationWhenInUseUsageDescription string 'Benötigt, um standortbezogene Wetterdaten anzuzeigen.'" "$PLIST" || \
-        /usr/libexec/PlistBuddy -c "Set :NSLocationWhenInUseUsageDescription 'Benötigt, um standortbezogene Wetterdaten anzuzeigen.'" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Add :NSLocationWhenInUseUsageDescription string 'Benötigt, um standortbezogene Wetterdaten anzuzeigen.'" "$PLIST" || \
+          /usr/libexec/PlistBuddy -c "Set :NSLocationWhenInUseUsageDescription 'Benötigt, um standortbezogene Wetterdaten anzuzeigen.'" "$PLIST"
 
-        /usr/libexec/PlistBuddy -c "Add :NSLocationAlwaysAndWhenInUseUsageDescription string 'Benötigt, um standortbezogene Wetterdaten anzuzeigen.'" "$PLIST" || \
-        /usr/libexec/PlistBuddy -c "Set :NSLocationAlwaysAndWhenInUseUsageDescription 'Benötigt, um standortbezogene Wetterdaten anzuzeigen.'" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Add :NSLocationAlwaysAndWhenInUseUsageDescription string 'Benötigt, um standortbezogene Wetterdaten anzuzeigen.'" "$PLIST" || \
+          /usr/libexec/PlistBuddy -c "Set :NSLocationAlwaysAndWhenInUseUsageDescription 'Benötigt, um standortbezogene Wetterdaten anzuzeigen.'" "$PLIST"
 
-        /usr/libexec/PlistBuddy -c "Add :NSCalendarsUsageDescription string 'Kalenderzugriff zum Erstellen und Verwalten von Terminen.'" "$PLIST" || \
-        /usr/libexec/PlistBuddy -c "Set :NSCalendarsUsageDescription 'Kalenderzugriff zum Erstellen und Verwalten von Terminen.'" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Add :NSCalendarsUsageDescription string 'Kalenderzugriff zum Erstellen und Verwalten von Terminen.'" "$PLIST" || \
+          /usr/libexec/PlistBuddy -c "Set :NSCalendarsUsageDescription 'Kalenderzugriff zum Erstellen und Verwalten von Terminen.'" "$PLIST"
 
-        /usr/libexec/PlistBuddy -c "Add :NSRemindersUsageDescription string 'Zugriff auf Erinnerungen für Benachrichtigungen.'" "$PLIST" || \
-        /usr/libexec/PlistBuddy -c "Set :NSRemindersUsageDescription 'Zugriff auf Erinnerungen für Benachrichtigungen.'" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Add :NSRemindersUsageDescription string 'Zugriff auf Erinnerungen für Benachrichtigungen.'" "$PLIST" || \
+          /usr/libexec/PlistBuddy -c "Set :NSRemindersUsageDescription 'Zugriff auf Erinnerungen für Benachrichtigungen.'" "$PLIST"
 
-        /usr/libexec/PlistBuddy -c "Add :NSCalendarsFullAccessUsageDescription string 'Die App benötigt Vollzugriff auf Kalender, um Termine anzulegen, zu ändern und zu löschen.'" "$PLIST" || \
-        /usr/libexec/PlistBuddy -c "Set :NSCalendarsFullAccessUsageDescription 'Die App benötigt Vollzugriff auf Kalender, um Termine anzulegen, zu ändern und zu löschen.'" "$PLIST"
-        
-        /usr/libexec/PlistBuddy -c "Add :NSCalendarsWriteOnlyAccessUsageDescription string 'Die App benötigt Schreibzugriff, um Termine zu erstellen.'" "$PLIST" || \
-        /usr/libexec/PlistBuddy -c "Set :NSCalendarsWriteOnlyAccessUsageDescription 'Die App benötigt Schreibzugriff, um Termine zu erstellen.'" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Add :NSCalendarsFullAccessUsageDescription string 'Die App benötigt Vollzugriff auf Kalender, um Termine anzulegen, zu ändern und zu löschen.'" "$PLIST" || \
+          /usr/libexec/PlistBuddy -c "Set :NSCalendarsFullAccessUsageDescription 'Die App benötigt Vollzugriff auf Kalender, um Termine anzulegen, zu ändern und zu löschen.'" "$PLIST"
+          
+          /usr/libexec/PlistBuddy -c "Add :NSCalendarsWriteOnlyAccessUsageDescription string 'Die App benötigt Schreibzugriff, um Termine zu erstellen.'" "$PLIST" || \
+          /usr/libexec/PlistBuddy -c "Set :NSCalendarsWriteOnlyAccessUsageDescription 'Die App benötigt Schreibzugriff, um Termine zu erstellen.'" "$PLIST"
 
-        # ATS (HTTPS + Web-Content)
-        /usr/libexec/PlistBuddy -c "Delete :NSAppTransportSecurity" "$PLIST" 2>/dev/null || true
-        /usr/libexec/PlistBuddy -c "Add :NSAppTransportSecurity dict" "$PLIST"
-        /usr/libexec/PlistBuddy -c "Add :NSAppTransportSecurity:NSAllowsArbitraryLoads bool false" "$PLIST"
-        /usr/libexec/PlistBuddy -c "Add :NSAppTransportSecurity:NSAllowsArbitraryLoadsInWebContent bool true" "$PLIST"
+          # ATS für DEV-Host
+          /usr/libexec/PlistBuddy -c "Delete :NSAppTransportSecurity" "$PLIST" 2>/dev/null || true
+          /usr/libexec/PlistBuddy -c "Add :NSAppTransportSecurity dict" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Add :NSAppTransportSecurity:NSAllowsArbitraryLoads bool false" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Add :NSAppTransportSecurity:NSAllowsArbitraryLoadsInWebContent bool true" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Add :NSAppTransportSecurity:NSExceptionDomains dict" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Add :NSAppTransportSecurity:NSExceptionDomains:${DEV_HOST} dict" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Add :NSAppTransportSecurity:NSExceptionDomains:${DEV_HOST}:NSIncludesSubdomains bool true" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Add :NSAppTransportSecurity:NSExceptionDomains:${DEV_HOST}:NSRequiresCertificateTransparency bool false" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Add :NSAppTransportSecurity:NSExceptionDomains:${DEV_HOST}:NSTemporaryExceptionAllowsInsecureHTTPSLoads bool true" "$PLIST"
 
-        # Buildnummer
-        BN="${BUILD_NUMBER:-${CM_BUILD_ID:-$(date +%Y%m%d%H%M)}}"
-        /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $BN" "$PLIST"
+          # Buildnummer
+          BN="${BUILD_NUMBER:-${CM_BUILD_ID:-$(date +%Y%m%d%H%M)}}"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $BN" "$PLIST"
 
-      # 6) Signieren & Bauen
-      - xcode-project use-profiles
-      - xcode-project build-ipa --workspace "ios/App/App.xcworkspace" --scheme "App"
+      # 6) Signieren & Bauen (Release für TestFlight, lädt remote via server.url)
+      - name: Build IPA (Release)
+        script: |
+          xcode-project use-profiles
+          xcode-project build-ipa --workspace "ios/App/App.xcworkspace" --scheme "App" --config "Release"
+
+    ios:
+      xcode_scheme: App
+      project: ios/App/App.xcodeproj
+      distribution_type: app-store
+      build_configuration: Release
 
     artifacts:
       - build/ios/ipa/*.ipa
