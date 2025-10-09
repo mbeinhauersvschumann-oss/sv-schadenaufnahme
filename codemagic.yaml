@@ -42,7 +42,6 @@ workflows:
         script: |
           PLIST="ios/App/App/Info.plist"
 
-          # Usage strings
           /usr/libexec/PlistBuddy -c "Add :NSPhotoLibraryUsageDescription string 'Zugriff auf Fotomediathek zum Auswählen von Schadensbildern.'" "$PLIST" || \
           /usr/libexec/PlistBuddy -c "Set :NSPhotoLibraryUsageDescription 'Zugriff auf Fotomediathek zum Auswählen von Schadensbildern.'" "$PLIST"
 
@@ -93,12 +92,6 @@ workflows:
         script: |
           xcode-project use-profiles
           xcode-project build-ipa --workspace "ios/App/App.xcworkspace" --scheme "App" --config "Release"
-
-    ios:
-      xcode_scheme: App
-      project: ios/App/App.xcodeproj
-      distribution_type: app-store
-      build_configuration: Release
 
     artifacts:
       - build/ios/ipa/*.ipa
