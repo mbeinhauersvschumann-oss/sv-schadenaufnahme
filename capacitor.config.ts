@@ -6,9 +6,9 @@ const config: CapacitorConfig = {
   webDir: 'dist',              // lokale Struktur bleibt
   ios: { scheme: 'https' },    // DEV nutzt HTTPS
   server: {
-    url: 'https://webcast-stroke-ticket-carol.trycloudflare.com', // dein aktueller Tunnel
+    url: 'https://detailed-participating-isaac-linking.trycloudflare.com', // dein aktueller Tunnel
     cleartext: false,
-    allowNavigation: ['https://webcast-stroke-ticket-carol.trycloudflare.com']
+    allowNavigation: ['https://detailed-participating-isaac-linking.trycloudflare.com']
   }
 };
 
