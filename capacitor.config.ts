@@ -1,7 +1,7 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'de.svschumann.schadenaufnahme.dev', // eigenes DEV-Bundle
+  appId: 'de.svschumann.schadenaufnahme
   appName: 'SV Schumann – Schadenaufnahme (DEV)',
   webDir: 'dist',              // lokale Struktur bleibt
   ios: { scheme: 'https' },    // DEV nutzt HTTPS
