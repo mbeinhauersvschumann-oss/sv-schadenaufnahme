@@ -10,7 +10,7 @@
         - Schumann
       ios_signing:
         distribution_type: app_store
-        bundle_identifier: de.svschumann.schadenaufnahme.dev
+        bundle_identifier: de.svschumann.schadenaufnahme
       xcode: latest
       node: 20
 
