@@ -1,13 +1,15 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'de.svschumann.schadenaufnahme',
-  appName: 'SV Schumann – Schadenaufnahme',
-  webDir: 'dist',
-  ios: { scheme: 'capacitor' },
+  appId: 'de.svschumann.schadenaufnahme.dev', // eigenes DEV-Bundle
+  appName: 'SV Schumann – Schadenaufnahme (DEV)',
+  webDir: 'dist',              // lokale Struktur bleibt
+  ios: { scheme: 'https' },    // DEV nutzt HTTPS
   server: {
+    url: 'https://comes-def-mud-orchestra.trycloudflare.com', // dein aktueller Tunnel
     cleartext: false,
     allowNavigation: []
   }
 };
+
 export default config;
