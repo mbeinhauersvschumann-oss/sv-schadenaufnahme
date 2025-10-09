@@ -1,14 +1,17 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'de.svschumann.schadenaufnahme
+  appId: 'de.svschumann.schadenaufnahme',
   appName: 'SV Schumann – Schadenaufnahme (DEV)',
-  webDir: 'dist',              // lokale Struktur bleibt
-  ios: { scheme: 'https' },    // DEV nutzt HTTPS
+  webDir: 'dist',
+  ios: { scheme: 'https' },
   server: {
-    url: 'https://detailed-participating-isaac-linking.trycloudflare.com', // dein aktueller Tunnel
+    url: 'https://dev.sv-schumann.de',   // aktuell aktiver Cloudflare-Tunnel
     cleartext: false,
-    allowNavigation: ['https://detailed-participating-isaac-linking.trycloudflare.com']
+    allowNavigation: [
+      'dev.sv-schumann.de',
+      'app.sv-schumann.de'
+    ]
   }
 };
 
