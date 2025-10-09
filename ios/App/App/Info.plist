@@ -3,12 +3,14 @@
 <plist version="1.0">
 <dict>
 
-  <!-- Basis -->
+  <!-- ========================================================= -->
+  <!-- Basisinformationen                                        -->
+  <!-- ========================================================= -->
   <key>CFBundleDevelopmentRegion</key>
   <string>en</string>
 
   <key>CFBundleDisplayName</key>
-  <string>SV Schumann – Schadenaufnahme</string>
+  <string>SV Schumann – Schadenaufnahme (DEV)</string>
 
   <key>CFBundleExecutable</key>
   <string>$(EXECUTABLE_NAME)</string>
@@ -34,7 +36,9 @@
   <key>LSRequiresIPhoneOS</key>
   <true/>
 
-  <!-- Launch / Main -->
+  <!-- ========================================================= -->
+  <!-- Launch / Main                                              -->
+  <!-- ========================================================= -->
   <key>UILaunchStoryboardName</key>
   <string>LaunchScreen</string>
 
@@ -70,10 +74,8 @@
   <false/>
 
   <!-- ========================================================= -->
-  <!-- Datenschutz-Texte (Prompts)                              -->
+  <!-- Datenschutz-Texte (Prompts)                                -->
   <!-- ========================================================= -->
-
-  <!-- Kamera / Fotos -->
   <key>NSCameraUsageDescription</key>
   <string>Kamerazugriff für Schadenfotos.</string>
 
@@ -83,38 +85,52 @@
   <key>NSPhotoLibraryAddUsageDescription</key>
   <string>Zum Speichern von aufgenommenen Fotos in Ihrer Fotomediathek.</string>
 
-  <!-- Mikrofon -->
   <key>NSMicrophoneUsageDescription</key>
   <string>Mikrofonzugriff für Sprachnotizen/Audioaufnahme.</string>
 
-  <!-- Standort (zeigt "Beim Verwenden der App") -->
   <key>NSLocationWhenInUseUsageDescription</key>
   <string>Benötigt, um standortbezogene Wetterdaten anzuzeigen.</string>
 
-  <!-- Optional zusätzlich: Always+WhenInUse (schadet nicht und ist Reviewer-freundlich) -->
   <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
   <string>Benötigt, um standortbezogene Wetterdaten anzuzeigen.</string>
 
-  <!-- Kalender (EventKit) -->
   <key>NSCalendarsUsageDescription</key>
   <string>Kalenderzugriff zum Erstellen und Verwalten von Terminen.</string>
 
-  <!-- iOS 17+: Vollzugriff / Schreibzugriff -->
   <key>NSCalendarsFullAccessUsageDescription</key>
   <string>Die App benötigt Vollzugriff auf Kalender, um Termine anzulegen, zu ändern und zu löschen.</string>
+
   <key>NSCalendarsWriteOnlyAccessUsageDescription</key>
   <string>Die App benötigt Schreibzugriff, um Termine zu erstellen.</string>
 
   <!-- ========================================================= -->
-  <!-- App Transport Security                                   -->
+  <!-- App Transport Security (ATS) für DEV-Tunnel                -->
   <!-- ========================================================= -->
   <key>NSAppTransportSecurity</key>
   <dict>
     <key>NSAllowsArbitraryLoads</key>
     <false/>
     <key>NSAllowsArbitraryLoadsInWebContent</key>
-    <true/>
+    <false/>
+    <key>NSExceptionDomains</key>
+    <dict>
+      <!-- Cloudflare Dev-Tunnel -->
+      <key>trycloudflare.com</key>
+      <dict>
+        <key>NSIncludesSubdomains</key><true/>
+        <key>NSTemporaryExceptionAllowsInsecureHTTPLoads</key><false/>
+        <key>NSTemporaryExceptionMinimumTLSVersion</key><string>TLSv1.2</string>
+      </dict>
+      <!-- Später, wenn dev.sv-schumann.de aktiv ist -->
+      <key>dev.sv-schumann.de</key>
+      <dict>
+        <key>NSIncludesSubdomains</key><true/>
+        <key>NSTemporaryExceptionAllowsInsecureHTTPLoads</key><false/>
+        <key>NSTemporaryExceptionMinimumTLSVersion</key><string>TLSv1.2</string>
+      </dict>
+    </dict>
   </dict>
 
 </dict>
 </plist>
+
