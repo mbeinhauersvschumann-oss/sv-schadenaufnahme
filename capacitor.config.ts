@@ -8,7 +8,7 @@ const config: CapacitorConfig = {
   server: {
     url: 'https://webcast-stroke-ticket-carol.trycloudflare.com', // dein aktueller Tunnel
     cleartext: false,
-    allowNavigation: []
+    allowNavigation: ['https://webcast-stroke-ticket-carol.trycloudflare.com']
   }
 };
 
